@@ -7,7 +7,8 @@
 - **Hackathon:** Monad Metropolis · **Track:** Trust, Identity & AI Infrastructure
 - **Repo:** https://github.com/blaxko/rienda · **License:** MIT
 - **Demo video:** _TODO: link added before submission_
-- **Status:** working on Monad **testnet** (contract verified, 4 outcomes with real transactions below). Mainnet section is a placeholder until the mainnet deploy: see [Mainnet](#mainnet-to-be-filled-after-the-mainnet-deploy).
+- **Status:** working on Monad **testnet** (contract verified, 4 outcomes with real transactions below). **Mainnet: coming**, see [Mainnet](#mainnet-coming).
+- **Demo agent:** scripted for reproducibility; **every transaction is real**, and no AI model is involved.
 
 ---
 
@@ -74,11 +75,11 @@ Solidity 0.8.28 + Foundry · OpenZeppelin Contracts 5.6.1 (`SafeERC20`, `Reentra
 | What | Value |
 |---|---|
 | `Rienda` | [`0x70c3Bd491D1d39C29ee3D22434A5b7Ec78caaECb`](https://testnet.monadvision.com/address/0x70c3Bd491D1d39C29ee3D22434A5b7Ec78caaECb) |
-| Deploy block / tx | `69462264` · [`0x281f0871…9cdf`](https://testnet.monadvision.com/tx/0x281f087167b8bb887f8ce94b740b25ec45ad9b3edd4ae775d462bda6ce9e9cdf) |
+| Deploy block / tx | [`69462264`](https://testnet.monadvision.com/block/69462264) · [`0x281f0871…9cdf`](https://testnet.monadvision.com/tx/0x281f087167b8bb887f8ce94b740b25ec45ad9b3edd4ae775d462bda6ce9e9cdf) |
 | USDC | `0x534b2f3A21130d7a60830c2Df862319e593943A3` |
 | Verification | Sourcify (MonadVision), exact runtime-bytecode match |
 
-**One real transaction per outcome** (scripted injection run on rein #1):
+**One real transaction per outcome** (scripted injection run on rein #1; the agent is scripted, every transaction is real and was sent to Monad testnet):
 
 | Outcome | What happened | Block | Transaction |
 |---|---|---|---|
@@ -89,9 +90,9 @@ Solidity 0.8.28 + Foundry · OpenZeppelin Contracts 5.6.1 (`SafeERC20`, `Reentra
 
 After the freeze the agent's next `pay` is rejected (`ReinFrozen`); that call is stopped at simulation, so it costs no gas and leaves no transaction.
 
-### Mainnet (to be filled after the mainnet deploy)
+### Mainnet: coming
 
-> **TODO: not deployed yet.** Fill in after the mainnet deploy; mainnet is deployed only after the owner's explicit go-ahead.
+> **Coming: not deployed yet.** This section is intentionally empty. It will be filled in after the mainnet deploy, which happens only after the owner's explicit go-ahead.
 
 | What | Value |
 |---|---|
@@ -160,7 +161,7 @@ npx tsx scripts/create-test-rein.ts   # approves 30 USDC, creates a rein, prints
 npm run agent -- --scenario injection --network testnet
 ```
 
-Expected summary: **2 Paid, 1 Held, 3 Blocked, Frozen, then 1 revert**, with an explorer link per transaction. To run again, reset the rein first (denies pending requests and unfreezes): `npx tsx scripts/reset-rein.ts`.
+Expected summary: **2 Paid, 1 Held, 3 Blocked, Frozen, then 1 revert**, with an explorer link per transaction. To run again, reset the rein first: `npx tsx scripts/reset-rein.ts` denies pending requests, unfreezes it, and tops the balance back up to $20 from the owner wallet if it fell below (each run spends $6). If the owner is short of USDC it says so and points to https://faucet.circle.com (select Monad Testnet). Add `--dry-run` to preview.
 
 > **The demo agent is scripted for reproducibility.** It replays a fixed list of tool calls through the same SDK; **every transaction is real**, and no AI model is involved. The injection scenario reads the poisoned page and then makes the attacker payment a fooled agent would make, so you can reproduce exactly what Rienda does when that happens.
 
