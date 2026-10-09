@@ -121,3 +121,12 @@ label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: 4
 @media (max-width: 560px) {
   .feed li { grid-template-columns: 1fr; }
 }
+
+.picker-wrap { position: relative; }
+.picker { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; min-width: 240px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.picker-title { font-size: .8rem; color: var(--muted); padding: 2px 6px 6px; }
+.picker-item { display: flex; align-items: center; gap: 10px; width: 100%; background: transparent; color: var(--text); text-align: left; padding: 8px 10px; font-weight: 500; }
+.picker-item:hover:not(:disabled) { background: var(--bg); }
+.picker-item img { border-radius: 5px; }
+.picker-noicon { width: 22px; height: 22px; border-radius: 5px; background: var(--border); display: inline-block; }
+.picker-empty { margin: 4px 6px; color: var(--text); max-width: 260px; }

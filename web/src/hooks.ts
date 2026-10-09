@@ -1,11 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useConnection, useSwitchChain } from "wagmi";
+import { useConnection } from "wagmi";
 import { EXPECTED_USDC_DECIMALS, getUsdcDecimals } from "@rienda/sdk";
 import { USDC, chain, publicClient } from "./config";
 
 export function useWallet() {
   const c = useConnection();
-  const switchChain = useSwitchChain();
   const isConnected = c.status === "connected" && !!c.address;
   const onRightChain = isConnected && c.chainId === chain.id;
   return {
@@ -14,8 +13,6 @@ export function useWallet() {
     onRightChain,
     /** Actions (any transaction) are only allowed when connected on the right network. */
     canAct: isConnected && onRightChain,
-    switchToMonad: () => switchChain.mutate({ chainId: chain.id }),
-    switching: switchChain.isPending,
   };
 }
 

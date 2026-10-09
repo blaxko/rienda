@@ -14,19 +14,28 @@ export function Reins() {
     refetchInterval: 5000,
   });
 
-  return (
-    <section>
-      <h1>My reins</h1>
-      {!w.isConnected && <p className="muted">Connect your owner wallet to see your reins.</p>}
-      {w.isConnected && q.isLoading && <p className="muted">Loading…</p>}
-      {q.error && <p className="tx tx-err">Could not load reins: {(q.error as Error).message}</p>}
-      {q.data && q.data.length === 0 && (
-        <p className="muted">
-          You have no reins on {chain.name}. <Link to="/new">Create one</Link>.
-        </p>
-      )}
+  // Every state renders something visible: never a blank page.
+  let body;
+  if (!rienda) {
+    body = <p className="muted">Rienda is not deployed on {chain.name} yet.</p>;
+  } else if (!w.isConnected) {
+    body = <p className="muted">Connect your wallet to see your reins.</p>;
+  } else if (q.error) {
+    body = <p className="tx tx-err">Could not load your reins: {(q.error as Error).message}</p>;
+  } else if (q.isLoading || !q.data) {
+    body = <p className="muted">Loading your reins…</p>;
+  } else if (q.data.length === 0) {
+    body = (
+      <div className="card">
+        <p style={{ marginTop: 0 }}><strong>No reins yet.</strong></p>
+        <p className="muted">A rein sets what your agent may spend and who it may pay.</p>
+        <Link to="/new"><button>New rein</button></Link>
+      </div>
+    );
+  } else {
+    body = (
       <div className="cards">
-        {q.data?.map(({ id, rein }) => (
+        {q.data.map(({ id, rein }) => (
           <Link key={id.toString()} to={`/rein/${id}`} className="card link-card">
             <div className="row">
               <strong>Rein #{id.toString()}</strong>
@@ -38,6 +47,13 @@ export function Reins() {
           </Link>
         ))}
       </div>
+    );
+  }
+
+  return (
+    <section>
+      <h1>My reins</h1>
+      {body}
     </section>
   );
 }

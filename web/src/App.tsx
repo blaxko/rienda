@@ -1,3 +1,4 @@
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Header, NetworkGuard } from "./components/Header";
 import { usePath } from "./router";
 import { Reins } from "./pages/Reins";
@@ -17,7 +18,9 @@ export function App() {
     <>
       <Header />
       <NetworkGuard />
-      <main className="main">{page}</main>
+      <main className="main">
+        <ErrorBoundary key={path}>{page}</ErrorBoundary>
+      </main>
     </>
   );
 }

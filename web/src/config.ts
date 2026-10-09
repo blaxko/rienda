@@ -18,6 +18,9 @@ const transport = transportFor(NETWORK, {
 
 export const wagmiConfig = createConfig({
   chains: [chain],
+  // EIP-6963: every installed wallet (MetaMask, Rabby, …) announces itself and becomes its own connector.
+  // The generic injected() connector stays only as a fallback for wallets that don't announce.
+  multiInjectedProviderDiscovery: true,
   connectors: [injected()],
   transports: { [chain.id]: transport },
 });
