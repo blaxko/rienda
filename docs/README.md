@@ -1,5 +1,5 @@
 # docs
 
-- `PRD.md` — requirements (source of truth)
-- `architecture.md` — diagram and data flow (to come)
-- `threat-model.md` — tricked agent, stolen key, spam, limits (to come)
+- [`PRD.md`](PRD.md): requirements (source of truth)
+- [`architecture.md`](architecture.md): components, data model, `pay` decision, feed, Monad specifics
+- [`threat-model.md`](threat-model.md): tricked agent, stolen key, spam, colluding merchant, what Rienda does not protect
