@@ -5,9 +5,10 @@ import { erc20Abi } from "viem";
  * Fixed gas limit for `pay`. Monad charges the declared gas limit, not gas used (receipts show
  * gasUsed == limit), so never use estimateGas() * N. Measured with eth_estimateGas on Monad testnet
  * at the block before each tx (Oct 9 run): Paid 141,272 / Held 126,171 / Blocked 69,528 /
- * Blocked+Frozen 71,216. Limit = highest + 30%, rounded up.
+ * Blocked+Frozen 71,216. Highest + 30% = 183,654; raised to 250,000 for the unmeasured day-rollover
+ * and first-Held cases (out-of-gas would lose the Blocked event). Re-check with `cast estimate` on a new UTC day.
  */
-export const PAY_GAS_LIMIT = 185_000n;
+export const PAY_GAS_LIMIT = 250_000n;
 
 /** Expected USDC decimals. Always confirm at runtime with `getUsdcDecimals`. */
 export const EXPECTED_USDC_DECIMALS = 6;

@@ -178,9 +178,9 @@ Existing fixes each break somewhere: allowances cap amounts but not where money 
 
 | Parameter | Value | Basis |
 |---|---|---|
-| `PAY_GAS_LIMIT` | **185,000** | Measured on Monad testnet with `eth_estimateGas` at the block before each real `pay` tx (rein #0, Oct 9): Paid 141,272 / 141,212, Held 126,171, Blocked 69,528, Blocked+Frozen 71,216. Highest 141,272 + 30% = 183,654, rounded up. Monad charges the declared gas limit, so keep it fixed. |
+| `PAY_GAS_LIMIT` | **250,000** | Measured on Monad testnet with `eth_estimateGas` at the block before each real `pay` tx (rein #0, Oct 9): Paid 141,272 / 141,212, Held 126,171, Blocked 69,528, Blocked+Frozen 71,216. Highest + 30% = 183,654; raised to 250,000 as margin for the unmeasured cases (UTC day rollover, first-ever Held) because an out-of-gas `pay` would lose the Blocked event. Monad charges the declared gas limit, so keep it fixed. **TODO: re-check with `cast estimate` after the first run on a new UTC day (Oct 10).** |
 
-**How it was measured:** Monad receipts report `gasUsed` equal to the gas limit (300,000 in the first run), so receipts can't be used to measure consumption. Use `cast estimate ... --block <txBlock-1>` against the pre-transaction state instead. Foundry's local figures (Paid 86,069, Held 123,519, Blocked 45,760) understated Paid and Blocked by 50-60% because Monad prices cold storage and account access higher. The limit has headroom for the worst case not yet seen (first-ever Held in a fresh contract, UTC day rollover); re-check if any `pay` ever runs out of gas.
+**How it was measured:** Monad receipts report `gasUsed` equal to the gas limit (300,000 in the first run), so receipts can't be used to measure consumption. Use `cast estimate ... --block <txBlock-1>` against the pre-transaction state instead. Foundry's local figures (Paid 86,069, Held 123,519, Blocked 45,760) understated Paid and Blocked by 50-60% because Monad prices cold storage and account access higher. The limit includes extra headroom for cases not yet measured (first-ever Held in a fresh contract, UTC day rollover); re-measure the day-rollover case on the first run of a new UTC day, and again if any `pay` ever runs out of gas.
 
 ---
 
