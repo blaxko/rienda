@@ -115,9 +115,9 @@ Each phase ends with its exit test passing. No stretch work while any Must box i
    - [x] SDK `pay` (simulate → send with fixed gas → decode outcome), `getRein`, `getRequests`, `watch`
    - [x] Agent scripted mode + injection scenario → exit: 2 Paid, 1 Held, 3 Blocked, Frozen, then revert, on testnet (verified Oct 9; rein #0)
    - [ ] Agent LLM mode, normal scenario
-4. [ ] **Day 3 (Sun Oct 11) — Dashboard**
-   - [ ] Connect wallet, create rein (approve + create ≤ 3 tx), rein page, live feed, held approvals, freeze/unfreeze, low-gas warning
-   - [ ] Exit: flows F1–F5 in the browser on testnet
+4. [x] **Day 3 (Sun Oct 11) — Dashboard**
+   - [x] Connect wallet (EIP-6963 picker), create rein (approve + create ≤ 3 tx), rein page, live feed, held approvals, freeze/unfreeze, low-gas warning (built; not yet seen in a browser test)
+   - [x] Exit: flows F1–F5 in the browser on testnet (verified Oct 9: rein #0 approve/unfreeze/withdraw-close; rein #1 created from /new, injection run, feed ≤ ~3 s, FROZEN banner, Approve disabled below balance)
 5. [ ] **Day 4 (Mon Oct 12) — Mainnet + proof**
    - [ ] Deploy + verify on mainnet with small USDC
    - [ ] Run injection scenario on mainnet; record one tx hash per outcome in README
