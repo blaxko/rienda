@@ -12,7 +12,7 @@ Tick a box only when you can point to the proof written next to it.
 - [ ] **Metropolis project switched to Rienda**
   - https://hackathon.monad.xyz → your project → rename to **Rienda**.
   - Primary track: **Trust, Identity & AI Infrastructure**.
-  - Remove the Dorea bounties (Agora, Mera UX, Mera PRF). Add **Best Builds with Qwen 3.8 Max** and/or **Best Builds Powered by KIMI** only if you'll use that model (S1); you can add or remove until the deadline.
+  - Remove the Dorea bounties (Agora, Mera UX, Mera PRF). Add **Best Builds with Qwen 3.8 Max** and/or **Best Builds Powered by KIMI** only if you'll use that model (S1); you can add or remove until the deadline. **(S1 dropped: no LLM API, so do not add the Qwen/KIMI bounties.)**
   - Proof: screenshot of the project page showing the name, track and bounties.
 - [ ] **GitHub repo renamed**
   - https://github.com/blaxko/dorea → Settings → General → Repository name → `rienda` → Rename. (The old URL redirects.)
@@ -24,12 +24,8 @@ Tick a box only when you can point to the proof written next to it.
   - Copy both HTTPS URLs into your password manager.
   - Proof (in WSL): `curl -s -X POST <MAINNET_URL> -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}'` → `"0x8f"`; testnet URL → `"0x279f"`.
 - [ ] **Fallback RPCs** — run the same curl against `https://rpc.monad.xyz` (→ `0x8f`) and `https://testnet-rpc.monad.xyz` (→ `0x279f`).
-- [ ] **LLM API key (pick one; any OpenAI-compatible provider works)**
-  - **Qwen (Alibaba Cloud Model Studio):** sign up at https://www.alibabacloud.com/help/en/model-studio → create an API key in the console. Base URL (international): `https://dashscope-intl.aliyuncs.com/compatible-mode/v1`. Model: `qwen3.8-max`.
-  - **KIMI (Moonshot):** https://platform.moonshot.ai → API keys → create. Base URL: `https://api.moonshot.ai/v1`. Model: `kimi-k3`.
-  - Store the key in your password manager.
-  - Proof: one tool-calling test call succeeds (see §3 last item). Confirm the model ID in the provider's own docs — they change often.
-- [ ] **Hackathon credits** — if going for Qwen/KIMI bounties, ask in the Metropolis Discord how to claim the sponsor credits. Proof: question posted / credits visible in console.
+- **Dropped — no LLM API available; the demo agent is scripted (see README).** (The LLM API key item was removed from this checklist.)
+- [ ] ~~**Hackathon credits** — if going for Qwen/KIMI bounties, ask in the Metropolis Discord how to claim the sponsor credits. Proof: question posted / credits visible in console.~~ **(dropped: Qwen/KIMI bounties dropped)**
 - [ ] **Sponsor perk: Tenderly Pro** — claim from the Metropolis Resources page (one voucher per team). Useful for simulating and debugging `pay` transactions. Proof: Tenderly project created.
 - [ ] **Hosting for the dashboard** — Vercel (https://vercel.com, sign in with GitHub) or Railway. Proof: account exists and is linked to GitHub. (Deploy happens on Day 3–4.)
 - [ ] **Video host** — YouTube channel or Loom that can publish a public/unlisted video ≤ 3:00. Proof: a 5-second test upload opens logged-out.
@@ -71,7 +67,7 @@ You need five roles. Write each **address** (never the key) in the blanks.
   - MON for deployer, owner, agent_mainnet.
   - USDC to the owner. Before buying or bridging, confirm the token is exactly **`0x754704Bc059F8C67012fEd69BC8A327a5aafb603`** (native USDC on Monad, per Circle). Fake "USDC" tokens exist.
   - Proof: `cast call 0x754704Bc059F8C67012fEd69BC8A327a5aafb603 "balanceOf(address)(uint256)" <owner> --rpc-url https://rpc.monad.xyz` shows the amount (6 decimals).
-- [ ] **Password manager entry "Rienda"** holds: keystore password, agent keys, merchant keys, Alchemy URLs, LLM API key. Nothing secret lives anywhere else.
+- [ ] **Password manager entry "Rienda"** holds: keystore password, agent keys, merchant keys, Alchemy URLs. Nothing secret lives anywhere else.
 
 ---
 
@@ -109,7 +105,7 @@ Tick only when the check command prints what's shown.
 - [ ] **Claude Code** in WSL — install per Anthropic's docs; check `claude --version`.
 - [ ] **VS Code + "WSL" extension** (optional but easiest): open the repo with `code .` from Ubuntu.
 - [ ] **Screen recorder** — OBS Studio (https://obsproject.com) on Windows. Check: a 10-second test recording of browser + terminal side by side plays back.
-- [ ] **LLM tool-calling smoke test** (proves your key, base URL and model work):
+- ~~**LLM tool-calling smoke test**~~ **(DROPPED: no LLM API available. Kept below for reference only. Do not run.)**
   ```bash
   curl -s $LLM_BASE_URL/chat/completions -H "Authorization: Bearer $LLM_API_KEY" -H 'content-type: application/json' -d '{
     "model":"'"$LLM_MODEL"'","temperature":0,
@@ -133,7 +129,7 @@ Tick only when the check command prints what's shown.
 - [ ] **Coinbase Spend Permissions** (how a periodic allowance resets): https://docs.cdp.coinbase.com/coinbase-wallet/reference/onchain-contracts/spend-permissions.md
 - [ ] **Prior art, to explain differences (do not copy):** AgentLeash https://github.com/edwardtay/agent-leash
 - [ ] **Why it matters (for the pitch):** Princeton "Real AI Agents with Fake Memories" abstract https://arxiv.org/abs/2503.16248v3 · the May 2026 agent-wallet drain https://ambcrypto.com/ai-linked-wallet-drained-via-prompt-injection-in-bankr-exploit/
-- [ ] **Your LLM provider's tool-calling docs** (Qwen or KIMI).
+- [ ] ~~**Your LLM provider's tool-calling docs** (Qwen or KIMI).~~ **(dropped)**
 - [ ] **Hackathon rules** §4 (submission), §9 (technical), §10 (disqualification) — reread once.
 
 ---
@@ -178,7 +174,7 @@ Save these in a notes file now; they go into `agent/` and `README.md` on Day 2.
 - [ ] **README skeleton** headings: Problem · Demo video · How it works (outcome order) · Architecture · Tech stack · How Rienda uses Monad · Contract addresses & tx hashes (one per outcome) · SDK quickstart (≤ 10 lines) · Setup (contracts / agent / web) · Threat model & limits · Differences from AgentLeash/MetaMask permissions · Pre-existing code (none) · AI tools used · Attribution · License.
 - [ ] **Discord questions** (post now):
   1. "Is there a USDC faucet for Monad testnet (`0x534b…43A3`)?"
-  2. "For the Qwen 3.8 Max bounty, how do we claim credits, and does any OpenAI-compatible call to Qwen 3.8 Max count?"
+  2. ~~"For the Qwen 3.8 Max bounty, how do we claim credits, and does any OpenAI-compatible call to Qwen 3.8 Max count?"~~ **(dropped)**
   3. "Does using Alchemy's Monad RPC count as meaningful integration for the Alchemy bounty?"
 - [ ] **60-second pitch** (`CLAUDE.md` §7) read aloud once and timed ≤ 60 s.
 - [ ] **Video captions** — one line per beat from `CLAUDE.md` §6.
@@ -194,7 +190,7 @@ Save these in a notes file now; they go into `agent/` and `README.md` on Day 2.
   3. Three red **Blocked** rows ("Recipient not on your allowed list") + **FROZEN** banner; balance unchanged.
   4. MonadVision showing a `Blocked` event in a successful transaction.
 - [ ] The one sentence the judge should repeat: *"The agent got tricked into sending $500 — Rienda blocked it, recorded it and froze the agent."*
-- [ ] Decide: LLM mode for recording, scripted as backup (disclosed if used). Write the decision here: `_______`
+- [ ] ~~Decide: LLM mode for recording, scripted as backup (disclosed if used). Write the decision here: `_______`~~ **(dropped: scripted is the only mode, disclosed)**
 
 ---
 
@@ -223,7 +219,7 @@ Save these in a notes file now; they go into `agent/` and `README.md` on Day 2.
 
 - [ ] `wsl -l -v` → Ubuntu v2 · `node -v` → v22 · `forge --version` → ≥ 1.8.0 · `gh auth status` → logged in.
 - [ ] Alchemy and public RPCs return the right chain IDs on both networks.
-- [ ] LLM smoke test returns a `pay` tool call.
+- [ ] ~~LLM smoke test returns a `pay` tool call.~~ **(dropped)**
 - [ ] Deployer, owner and agent have testnet MON; owner has testnet USDC (or the faucet question is posted and you have a plan).
 - [ ] Mainnet USDC verified at `0x7547…b603` in the owner wallet; deployer and agent have mainnet MON.
 - [ ] Every blank in §2 and §5 is filled.

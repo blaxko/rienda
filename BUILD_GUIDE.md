@@ -290,7 +290,11 @@ Use a fresh rein each run (or tell me how to unfreeze between runs).
 
 ---
 
-### Step 2.5 LLM mode (not critical)
+### ~~Step 2.5 LLM mode (not critical)~~ — DROPPED
+
+**Dropped — no LLM API available; the demo agent is scripted (see README).**
+
+_Old text, kept for reference only. Do not do this step:_
 
 **Prompt:**
 ```
@@ -518,7 +522,7 @@ Write README.md using the skeleton in PHASE_0_CHECKLIST.md §6 and facts from do
 - setup for contracts / agent / web that a stranger can follow, plus .env.example
 - threat model & limits, differences from AgentLeash/MetaMask permissions
 - "Pre-existing code: none" and "AI tools used: Claude Code (describe what it did)"
-- attribution: OpenZeppelin, viem, wagmi, openai, Vite, React
+- attribution: OpenZeppelin, viem, wagmi, Vite, React (`openai` dropped with LLM mode)
 - license: MIT
 Also write docs/architecture.md and docs/threat-model.md (tricked agent, stolen agent key, spam, colluding merchant, what Rienda does NOT protect).
 ```
@@ -529,7 +533,11 @@ Also write docs/architecture.md and docs/threat-model.md (tricked agent, stolen 
 
 ---
 
-### Step 4.6 Stretch S1: Qwen or KIMI (only if everything above is done)
+### ~~Step 4.6 Stretch S1: Qwen or KIMI (only if everything above is done)~~ — DROPPED
+
+**Dropped — no LLM API available; the demo agent is scripted (see README).**
+
+_Old text, kept for reference only. Do not do this step:_
 
 **Prompt:**
 ```
@@ -634,7 +642,7 @@ gitleaks detect --source . && git add -A && git commit -m "Day 5: final README a
 - [ ] Docs: description, architecture, tech stack, setup/deploy
 - [ ] AI tools disclosed; pre-existing code: none; libraries attributed
 - [ ] No secrets in the repo (`gitleaks` clean)
-- [ ] Bounties: only those you actually qualify for (Qwen/KIMI only if S1 shipped); remove any others
+- [ ] Bounties: only those you actually qualify for (Qwen/KIMI dropped with S1: do not claim them); remove any others
 - [ ] Submitted before 18:00 WAT on Tue Oct 13
 
 ## Pitch script (60 seconds, ~150 words)
