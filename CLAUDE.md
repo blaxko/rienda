@@ -110,7 +110,7 @@ Each phase ends with its exit test passing. No stretch work while any Must box i
    - [x] `Rienda.sol`: create, deposit, withdraw, setMerchant, setLimits, pay (FR-8 order), approve, deny, freeze, unfreeze, close
    - [x] Unit tests for every rule and edge case E2–E10; fuzz; invariants; coverage ≥ 95%
    - [x] `forge snapshot` → set `PAY_GAS_LIMIT` = measured + 20% → **300,000 (provisional)**; local measure was 123,519 max. To be re-measured on Monad testnet receipts after deploy (see `docs/PRD.md` §5 Risk parameters)
-   - [ ] Deploy + verify on testnet
+   - [x] Deploy + verify on testnet → `0x70c3Bd491D1d39C29ee3D22434A5b7Ec78caaECb`, block 69462264 (exact-match verified on Sourcify)
 3. [ ] **Day 2 (Sat Oct 10) — SDK + agent**
    - [ ] SDK `pay` (simulate → send with fixed gas → decode outcome), `getRein`, `watch`
    - [ ] Agent scripted mode + injection scenario → exit: 2 Paid, 1 Held, 3 Blocked, Frozen, then revert, on testnet
