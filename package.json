@@ -1,6 +1,7 @@
 {
   "name": "rienda",
   "private": true,
+  "type": "module",
   "version": "0.1.0",
   "description": "Onchain spending limits for AI agents on Monad",
   "license": "MIT",
@@ -8,5 +9,14 @@
     "packages/*",
     "agent",
     "web"
-  ]
+  ],
+  "devDependencies": {
+    "typescript": "~6.0.3",
+    "tsx": "~4.23.15",
+    "@types/node": "^22.20.5"
+  },
+  "scripts": {
+    "build:sdk": "npm run build -w packages/sdk",
+    "agent": "tsx agent/src/run.ts"
+  }
 }

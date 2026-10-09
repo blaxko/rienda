@@ -91,7 +91,7 @@ rienda/
 │   ├── src/scripted.ts         fixed tool-call sequences
 │   ├── scenarios/normal.ts, injection.ts
 │   ├── fixtures/pages/         local "web pages"; injected page lives here
-│   └── .env.example            RPC_URL, AGENT_PRIVATE_KEY, REIN_ID, LLM_BASE_URL, LLM_API_KEY, LLM_MODEL
+│   (env: one root .env — see /.env.example: RPC_URL, AGENT_PRIVATE_KEY, REIN_ID, ATTACKER_ADDRESS, LLM_*)
 └── web/                        owner dashboard (Vite + React + wagmi)
     ├── src/pages/Reins.tsx     list owner's reins
     ├── src/pages/NewRein.tsx   create form with defaults
@@ -106,14 +106,14 @@ rienda/
 Each phase ends with its exit test passing. No stretch work while any Must box is open.
 
 1. [ ] **Phase 0 (tonight)** — accounts, keys, WSL, tools, funded wallets (see `PHASE_0_CHECKLIST.md`).
-2. [ ] **Day 1 (Fri Oct 9) — Contract**
+2. [x] **Day 1 (Fri Oct 9) — Contract**
    - [x] `Rienda.sol`: create, deposit, withdraw, setMerchant, setLimits, pay (FR-8 order), approve, deny, freeze, unfreeze, close
    - [x] Unit tests for every rule and edge case E2–E10; fuzz; invariants; coverage ≥ 95%
-   - [x] `forge snapshot` → set `PAY_GAS_LIMIT` = measured + 20% → **300,000 (provisional)**; local measure was 123,519 max. To be re-measured on Monad testnet receipts after deploy (see `docs/PRD.md` §5 Risk parameters)
+   - [x] `forge snapshot` → `PAY_GAS_LIMIT` = **185,000**: re-measured on Monad testnet (`eth_estimateGas` at pre-tx blocks, highest 141,272 + 30%); see `docs/PRD.md` §5 Risk parameters
    - [x] Deploy + verify on testnet → `0x70c3Bd491D1d39C29ee3D22434A5b7Ec78caaECb`, block 69462264 (exact-match verified on Sourcify)
 3. [ ] **Day 2 (Sat Oct 10) — SDK + agent**
-   - [ ] SDK `pay` (simulate → send with fixed gas → decode outcome), `getRein`, `watch`
-   - [ ] Agent scripted mode + injection scenario → exit: 2 Paid, 1 Held, 3 Blocked, Frozen, then revert, on testnet
+   - [x] SDK `pay` (simulate → send with fixed gas → decode outcome), `getRein`, `getRequests`, `watch`
+   - [x] Agent scripted mode + injection scenario → exit: 2 Paid, 1 Held, 3 Blocked, Frozen, then revert, on testnet (verified Oct 9; rein #0)
    - [ ] Agent LLM mode, normal scenario
 4. [ ] **Day 3 (Sun Oct 11) — Dashboard**
    - [ ] Connect wallet, create rein (approve + create ≤ 3 tx), rein page, live feed, held approvals, freeze/unfreeze, low-gas warning
@@ -245,7 +245,9 @@ git log --oneline | head           # daily commits (judges check history)
 | Agent tx stuck / "nonce too low" | Sending the next `pay` before the last receipt | `await` each receipt before the next call |
 | Agent tx fails with out-of-funds | **Monad charges the declared gas limit, not gas used** | Fixed `PAY_GAS_LIMIT` from snapshot + 20%; keep ≥ 1 MON on the agent |
 | Amounts off by 10¹² | Assumed 18 decimals | USDC = 6; read `decimals()` |
-| `getLogs` errors | RPC block-range limit | Chunk from deploy block; failover RPC |
+| `getLogs` errors | RPC block-range limit (public testnet RPC: **100 blocks**, error `-32614`) | Chunk ≤ 100 blocks, or read state directly (`getRequests` uses multicall); failover RPC |
+| Receipt `gasUsed` always equals the gas limit | Monad charges the declared limit, so receipts can't measure consumption | Measure with `cast estimate ... --block <txBlock-1>` (`eth_estimateGas` on pre-tx state) |
+| `cast`/`forge` not found in a new shell | `~/.foundry/bin` not on PATH | `source ~/.bashrc` or `export PATH=$HOME/.foundry/bin:$PATH` |
 | Old testnet addresses missing | Testnet reset Dec 2025 | Use only this week's deployments |
 | TS build errors after install | TypeScript 7.x pulled in | Pin `typescript@~6.0` |
 | wagmi can't find Monad | Chain not configured | Use viem's Monad chain defs (or define 143 / 10143 manually in `packages/sdk/src/chains.ts`) |

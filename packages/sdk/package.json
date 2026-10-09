@@ -1,0 +1,29 @@
+{
+  "name": "@rienda/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for Rienda: onchain spending limits for AI agents on Monad",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "gen:abi": "node scripts/gen-abi.mjs",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "viem": "~2.57.4"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3"
+  }
+}

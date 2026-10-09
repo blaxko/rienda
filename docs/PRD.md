@@ -178,9 +178,9 @@ Existing fixes each break somewhere: allowances cap amounts but not where money 
 
 | Parameter | Value | Basis |
 |---|---|---|
-| `PAY_GAS_LIMIT` | **300,000** (provisional) | Local `forge test` measurements: Held 123,519; Paid 86,069; Blocked 45,760; Blocked+Frozen 47,428. Set well above 150,000 (measured + 20%) because Monad's cold-access pricing is higher than the local schedule. Monad charges the declared gas limit, so keep it fixed. **To be re-measured from real Monad testnet receipts after deploy.** |
+| `PAY_GAS_LIMIT` | **185,000** | Measured on Monad testnet with `eth_estimateGas` at the block before each real `pay` tx (rein #0, Oct 9): Paid 141,272 / 141,212, Held 126,171, Blocked 69,528, Blocked+Frozen 71,216. Highest 141,272 + 30% = 183,654, rounded up. Monad charges the declared gas limit, so keep it fixed. |
 
-**Caveat:** local figures use Foundry's Ethereum gas schedule; Monad prices cold storage and account access higher. Re-measure from real testnet `gasUsed` right after the testnet deploy (Step 1.7), then replace this provisional value before the SDK hard-codes it. An undersized limit makes `pay` run out of gas and leaves no event.
+**How it was measured:** Monad receipts report `gasUsed` equal to the gas limit (300,000 in the first run), so receipts can't be used to measure consumption. Use `cast estimate ... --block <txBlock-1>` against the pre-transaction state instead. Foundry's local figures (Paid 86,069, Held 123,519, Blocked 45,760) understated Paid and Blocked by 50-60% because Monad prices cold storage and account access higher. The limit has headroom for the worst case not yet seen (first-ever Held in a fresh contract, UTC day rollover); re-check if any `pay` ever runs out of gas.
 
 ---
 

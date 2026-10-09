@@ -1,0 +1,26 @@
+{
+  "_comment": "Replace each address with a wallet you control (testnet). Prices are in whole USDC.",
+  "merchants": [
+    {
+      "key": "news",
+      "label": "News API",
+      "address": "0x60F3dd45D78e1dFB58ebe861cb9F682eed7ce471",
+      "price": "2",
+      "unit": "brief"
+    },
+    {
+      "key": "gpu",
+      "label": "GPU minutes",
+      "address": "0xca1fD6CBf1f10dFA7e85A43813a33d256093c7f6",
+      "price": "0.40",
+      "unit": "minute"
+    },
+    {
+      "key": "coffee",
+      "label": "Coffee",
+      "address": "0x66C4eD626a011258474cfDf68a4bBBFb68262038",
+      "price": "3",
+      "unit": "cup"
+    }
+  ]
+}

@@ -16,5 +16,3 @@ export const addresses = {
     deployBlock: null,
   },
 } as const satisfies Record<"testnet" | "mainnet", RiendaDeployment>;
-
-export type Network = keyof typeof addresses;
