@@ -248,6 +248,8 @@ git log --oneline | head           # daily commits (judges check history)
 | `getLogs` errors | RPC block-range limit (public testnet RPC: **100 blocks**, error `-32614`) | Chunk ≤ 100 blocks, or read state directly (`getRequests` uses multicall); failover RPC |
 | Receipt `gasUsed` always equals the gas limit | Monad charges the declared limit, so receipts can't measure consumption | Measure with `cast estimate ... --block <txBlock-1>` (`eth_estimateGas` on pre-tx state) |
 | `cast`/`forge` not found in a new shell | `~/.foundry/bin` not on PATH | `source ~/.bashrc` or `export PATH=$HOME/.foundry/bin:$PATH` |
+| `npm install` fails with `EISDIR ... symlink '\\wsl.localhost\...'` or logs under `C:\Users\...` | `npm` on PATH is the **Windows** install (`/mnt/c/nvm4w/...`) | `source ~/.nvm/nvm.sh && nvm use 22`, check `which npm` is under `~/.nvm`, then reinstall |
+| Dashboard history loads slowly / `getLogs` limited to 100 blocks | Public testnet RPC range cap | `web/src/lib/events.ts` walks backward from head, halves chunks on error, stops at the rein's `ReinCreated`; set `VITE_RPC_URL_TESTNET` to a higher-limit RPC |
 | Old testnet addresses missing | Testnet reset Dec 2025 | Use only this week's deployments |
 | TS build errors after install | TypeScript 7.x pulled in | Pin `typescript@~6.0` |
 | wagmi can't find Monad | Chain not configured | Use viem's Monad chain defs (or define 143 / 10143 manually in `packages/sdk/src/chains.ts`) |

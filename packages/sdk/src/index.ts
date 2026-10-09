@@ -223,6 +223,29 @@ export function createRienda(config: CreateRiendaConfig) {
   }
 
   /**
+   * All reins (optionally only those owned by `owner`), read by id with multicall.
+   * Cost scales with the total number of reins ever created on this contract.
+   */
+  async function getReins(opts: { owner?: `0x${string}` } = {}): Promise<{ id: bigint; rein: Rein }[]> {
+    const total = await publicClient.readContract({ address, abi: riendaAbi, functionName: "nextReinId" });
+    const out: { id: bigint; rein: Rein }[] = [];
+    for (let start = 0n; start < total; start += REQUEST_BATCH) {
+      const end = start + REQUEST_BATCH < total ? start + REQUEST_BATCH : total;
+      const ids: bigint[] = [];
+      for (let i = start; i < end; i++) ids.push(i);
+      const rows = await publicClient.multicall({
+        allowFailure: false,
+        contracts: ids.map((id) => ({ address, abi: riendaAbi, functionName: "getRein" as const, args: [id] as const })),
+      });
+      rows.forEach((row, i) => {
+        const rein = toRein(row);
+        if (!opts.owner || rein.owner.toLowerCase() === opts.owner.toLowerCase()) out.push({ id: ids[i]!, rein });
+      });
+    }
+    return out;
+  }
+
+  /**
    * Subscribe to every event for a rein, polling every 1 s. Approved/Denied only carry a requestId,
    * so their rein is looked up. Returns an unsubscribe function.
    */
@@ -267,7 +290,7 @@ export function createRienda(config: CreateRiendaConfig) {
     });
   }
 
-  return { address, pay, getRein, getRequests, watch };
+  return { address, pay, getRein, getReins, getRequests, watch };
 }
 
 export type Rienda = ReturnType<typeof createRienda>;
