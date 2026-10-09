@@ -107,9 +107,9 @@ Each phase ends with its exit test passing. No stretch work while any Must box i
 
 1. [ ] **Phase 0 (tonight)** — accounts, keys, WSL, tools, funded wallets (see `PHASE_0_CHECKLIST.md`).
 2. [ ] **Day 1 (Fri Oct 9) — Contract**
-   - [ ] `Rienda.sol`: create, deposit, withdraw, setMerchant, setLimits, pay (FR-8 order), approve, deny, freeze, unfreeze, close
-   - [ ] Unit tests for every rule and edge case E2–E10; fuzz; invariants; coverage ≥ 95%
-   - [ ] `forge snapshot` → set `PAY_GAS_LIMIT` = measured + 20%
+   - [x] `Rienda.sol`: create, deposit, withdraw, setMerchant, setLimits, pay (FR-8 order), approve, deny, freeze, unfreeze, close
+   - [x] Unit tests for every rule and edge case E2–E10; fuzz; invariants; coverage ≥ 95%
+   - [x] `forge snapshot` → set `PAY_GAS_LIMIT` = measured + 20% → **300,000 (provisional)**; local measure was 123,519 max. To be re-measured on Monad testnet receipts after deploy (see `docs/PRD.md` §5 Risk parameters)
    - [ ] Deploy + verify on testnet
 3. [ ] **Day 2 (Sat Oct 10) — SDK + agent**
    - [ ] SDK `pay` (simulate → send with fixed gas → decode outcome), `getRein`, `watch`

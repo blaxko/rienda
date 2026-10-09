@@ -174,6 +174,14 @@ Existing fixes each break somewhere: allowances cap amounts but not where money 
 - **FR-28** Held requests panel with Approve / Deny.
 - **FR-29** History loads from the deploy block in chunks; new events arrive by polling every 1 s.
 
+### Risk parameters
+
+| Parameter | Value | Basis |
+|---|---|---|
+| `PAY_GAS_LIMIT` | **300,000** (provisional) | Local `forge test` measurements: Held 123,519; Paid 86,069; Blocked 45,760; Blocked+Frozen 47,428. Set well above 150,000 (measured + 20%) because Monad's cold-access pricing is higher than the local schedule. Monad charges the declared gas limit, so keep it fixed. **To be re-measured from real Monad testnet receipts after deploy.** |
+
+**Caveat:** local figures use Foundry's Ethereum gas schedule; Monad prices cold storage and account access higher. Re-measure from real testnet `gasUsed` right after the testnet deploy (Step 1.7), then replace this provisional value before the SDK hard-codes it. An undersized limit makes `pay` run out of gas and leaves no event.
+
 ---
 
 ## 6. User flows

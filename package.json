@@ -1,0 +1,12 @@
+{
+  "name": "rienda",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Onchain spending limits for AI agents on Monad",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "agent",
+    "web"
+  ]
+}
