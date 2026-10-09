@@ -1,0 +1,7 @@
+# Vendored Foundry libs (git submodules) contain test vectors that trip generic-api-key.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Vendored third-party libraries"
+paths = ['''contracts/lib/''']

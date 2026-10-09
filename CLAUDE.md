@@ -202,7 +202,7 @@ npm run build -w web && npm run preview -w web
 
 ### Hygiene
 ```bash
-npx gitleaks detect --source .     # before every push
+gitleaks detect --source .         # before every push (binary in ~/.local/bin; config: .gitleaks.toml)
 git log --oneline | head           # daily commits (judges check history)
 ```
 
