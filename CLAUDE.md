@@ -10,7 +10,7 @@ Source of truth for scope: `docs/PRD.md`. If this file and the PRD disagree, the
 
 - **Hackathon:** Monad Metropolis. **Deadline: Oct 13, 2026, 11:59 PM ET = Oct 14, 04:59 WAT.** Internal deadline: **Oct 13, 18:00 WAT.**
 - **Primary track:** Trust, Identity & AI Infrastructure — Rienda is a shared contract + SDK other agent builders use, not a standalone consumer app.
-- **Bounties (only if their stretch item ships):** Qwen 3.8 Max (agent model, Trust track, credits) · KIMI (credits) · Envio (S2) · Alchemy (if RPC counts as meaningful).
+- **Bounties (only if their stretch item ships):** Envio (S2) · Alchemy (if RPC counts as meaningful). Qwen / KIMI (LLM agent model) are **dropped**: no LLM API is available.
 - **Judging:** Product 20 · Technical 20 · Monad integration 20 · Track fit 20 · Innovation 20.
 
 **How it works:**
@@ -42,7 +42,6 @@ Source of truth for scope: `docs/PRD.md`. If this file and the PRD disagree, the
 | SDK / agent / web | TypeScript | **~6.0** (not 7.x) |
 | | viem | 2.57.x |
 | Agent | tsx | 4.23.x |
-| | openai (OpenAI-compatible client) | 7.30.x |
 | Dashboard | vite | 8.3.x |
 | | react / react-dom | 19.x |
 | | wagmi | 3.7.x |
@@ -87,11 +86,10 @@ rienda/
 ├── agent/                      CLI agent runner
 │   ├── src/run.ts              arg parsing, mode switch
 │   ├── src/tools.ts            list_merchants, check_budget, read_page, pay
-│   ├── src/llm.ts              OpenAI-compatible tool-calling loop, temperature 0
-│   ├── src/scripted.ts         fixed tool-call sequences
+│   ├── src/scripted.ts         fixed tool-call sequences (the only agent mode)
 │   ├── scenarios/normal.ts, injection.ts
 │   ├── fixtures/pages/         local "web pages"; injected page lives here
-│   (env: one root .env — see /.env.example: RPC_URL, AGENT_PRIVATE_KEY, REIN_ID, ATTACKER_ADDRESS, LLM_*)
+│   (env: one root .env — see /.env.example: RPC_URL, AGENT_PRIVATE_KEY, REIN_ID, ATTACKER_ADDRESS)
 └── web/                        owner dashboard (Vite + React + wagmi)
     ├── src/pages/Reins.tsx     list owner's reins
     ├── src/pages/NewRein.tsx   create form with defaults
@@ -114,7 +112,7 @@ Each phase ends with its exit test passing. No stretch work while any Must box i
 3. [ ] **Day 2 (Sat Oct 10) — SDK + agent**
    - [x] SDK `pay` (simulate → send with fixed gas → decode outcome), `getRein`, `getRequests`, `watch`
    - [x] Agent scripted mode + injection scenario → exit: 2 Paid, 1 Held, 3 Blocked, Frozen, then revert, on testnet (verified Oct 9; rein #0)
-   - [ ] Agent LLM mode, normal scenario
+   - [~] ~~Agent LLM mode, normal scenario~~ (Step 2.5) **dropped**: no LLM API available; scripted mode only. LLM mode is Future work in the PRD.
 4. [x] **Day 3 (Sun Oct 11) — Dashboard**
    - [x] Connect wallet (EIP-6963 picker), create rein (approve + create ≤ 3 tx), rein page, live feed, held approvals, freeze/unfreeze, low-gas warning (built; not yet seen in a browser test)
    - [x] Exit: flows F1–F5 in the browser on testnet (verified Oct 9: rein #0 approve/unfreeze/withdraw-close; rein #1 created from /new, injection run, feed ≤ ~3 s, FROZEN banner, Approve disabled below balance)
@@ -122,10 +120,10 @@ Each phase ends with its exit test passing. No stretch work while any Must box i
    - [ ] Deploy + verify on mainnet with small USDC
    - [ ] Run injection scenario on mainnet; record one tx hash per outcome in README
    - [ ] 10-run timing: blocked event → dashboard ≤ 3 s p95
-   - [ ] README complete; S1 (Qwen/KIMI model) only if all above done
+   - [ ] README complete
 6. [ ] **Day 5 (Tue Oct 13) — Video + submit** by 18:00 WAT. No new features.
 
-**Stretch (in order):** S1 Qwen/KIMI agent model → S2 Envio feed → S3 multi-agent dashboard → S4 browser notifications.
+**Stretch (in order):** S2 Envio feed → S3 multi-agent dashboard → S4 browser notifications. (S1 Qwen/KIMI agent model **dropped**: no LLM API.)
 
 ---
 
@@ -195,7 +193,7 @@ Testnet MON: `https://faucet.monad.xyz` (backups: Alchemy, QuickNode faucets).
 ```bash
 npm run build -w packages/sdk
 npm run agent -- --mode scripted --scenario injection --network testnet
-npm run agent -- --mode llm --scenario normal --network testnet
+npm run agent -- --mode scripted --scenario normal --network testnet
 npm run dev -w web            # open http://localhost:5173 in Windows browser
 npm run build -w web && npm run preview -w web
 ```
@@ -217,7 +215,7 @@ git log --oneline | head           # daily commits (judges check history)
 5. **1:25–2:10** — **The moment:** agent reads a poisoned page → tries 500 USDC to 0xATTACKER → **Blocked** (red) ×3 → **FROZEN** banner → next call reverts. Balance unchanged.
 6. **2:10–2:25** — MonadVision: the blocked attempts as real onchain events.
 7. **2:25–2:45** — Why Monad + the 10-line SDK snippet.
-8. **2:45–3:00** — Repo URL, contract address, "agent actions scripted for reproducibility" if scripted mode was used.
+8. **2:45–3:00** — Repo URL, contract address, "agent actions scripted for reproducibility; every transaction is real" (always, since scripted is the only mode).
 
 ---
 
@@ -253,8 +251,7 @@ git log --oneline | head           # daily commits (judges check history)
 | Old testnet addresses missing | Testnet reset Dec 2025 | Use only this week's deployments |
 | TS build errors after install | TypeScript 7.x pulled in | Pin `typescript@~6.0` |
 | wagmi can't find Monad | Chain not configured | Use viem's Monad chain defs (or define 143 / 10143 manually in `packages/sdk/src/chains.ts`) |
-| LLM ignores the injected instruction | Model behaviour varies | Temperature 0, fixed page; else scripted mode (disclosed) |
-| LLM sends bad tool args | Malformed JSON | Validate before sending; never send unvalidated calls |
+| Bad tool arguments reach the chain | Unvalidated input | Every tool call is validated locally before sending (scripted today; keep this if an LLM mode is ever added) |
 | Memo renders as HTML | XSS via memo | Render as plain text only |
 
 **Bad patterns:**
@@ -273,9 +270,9 @@ git log --oneline | head           # daily commits (judges check history)
 - No smart accounts, session keys, ERC-7715, EIP-7702, paymasters or bundlers.
 - No tokens other than USDC; no price oracles.
 - No prompt-injection detector in the model — Rienda assumes the model is fooled.
-- Never commit private keys, `.env`, RPC or LLM API keys.
+- Never commit private keys, `.env` or RPC API keys.
 - Never deploy to mainnet or send a mainnet transaction without asking the human first.
-- Never fake or hand-edit transactions in the demo; if the agent is scripted, say so.
+- Never fake or hand-edit transactions in the demo; the agent is scripted, so say so (README and video). Do not claim an AI model drives it.
 - Never copy code from AgentLeash or other projects; attribute every library used.
 - Don't change the `pay` outcome order, the event signatures or the ABI after Day 2 without updating the SDK, web and README together.
 - Don't use Monad or Metropolis logos beyond naming the event.

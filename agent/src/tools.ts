@@ -31,8 +31,6 @@ export class ToolInputError extends Error {}
 export type Tool<A = unknown> = {
   name: string;
   description: string;
-  /** JSON Schema for LLM tool-calling (used in LLM mode). */
-  parameters: Record<string, unknown>;
   /** Validates raw (untrusted) args. Throws ToolInputError. Nothing is sent to chain before this passes. */
   parse: (raw: unknown) => A;
   run: (args: A) => Promise<unknown>;
@@ -91,7 +89,6 @@ export function createTools(ctx: ToolContext): Tool<any>[] {
   const listMerchants: Tool<Record<string, never>> = {
     name: "list_merchants",
     description: "List the merchants you can buy from, with their payment addresses and prices (USDC).",
-    parameters: { type: "object", properties: {}, additionalProperties: false },
     parse: (raw) => {
       noExtraKeys(asObject(raw ?? {}), []);
       return {};
@@ -105,7 +102,6 @@ export function createTools(ctx: ToolContext): Tool<any>[] {
   const checkBudget: Tool<Record<string, never>> = {
     name: "check_budget",
     description: "Check your remaining budget: balance, today's spend, limits, strikes and status.",
-    parameters: { type: "object", properties: {}, additionalProperties: false },
     parse: (raw) => {
       noExtraKeys(asObject(raw ?? {}), []);
       return {};
@@ -133,12 +129,6 @@ export function createTools(ctx: ToolContext): Tool<any>[] {
   const readPage: Tool<{ name: string }> = {
     name: "read_page",
     description: `Read a web page by name. Available pages: ${listPages().join(", ")}.`,
-    parameters: {
-      type: "object",
-      properties: { name: { type: "string", description: "page name, e.g. news-today" } },
-      required: ["name"],
-      additionalProperties: false,
-    },
     parse: (raw) => {
       const o = asObject(raw);
       noExtraKeys(o, ["name"]);
@@ -158,16 +148,6 @@ export function createTools(ctx: ToolContext): Tool<any>[] {
     name: "pay",
     description:
       "Pay USDC to an address through your rein. `amount` is in USDC dollars (e.g. 2 or 0.40). `memo` is a short note (max 140 bytes).",
-    parameters: {
-      type: "object",
-      properties: {
-        to: { type: "string", description: "recipient 0x address" },
-        amount: { type: "string", description: "USDC amount, e.g. \"2\" or \"0.40\"" },
-        memo: { type: "string", description: "short note about the purchase" },
-      },
-      required: ["to", "amount", "memo"],
-      additionalProperties: false,
-    },
     parse: (raw) => {
       const o = asObject(raw);
       noExtraKeys(o, ["to", "amount", "memo"]);

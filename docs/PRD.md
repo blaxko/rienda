@@ -108,7 +108,7 @@ Existing fixes each break somewhere: allowances cap amounts but not where money 
 | M3 | Strikes and auto-freeze; owner freeze/unfreeze | US-7, US-8 |
 | M4 | Owner approve/deny for held payments | US-5 |
 | M5 | `@rienda/sdk` (TypeScript): `pay`, `getRein`, `watch` | US-9 |
-| M6 | Agent runner: **LLM mode** (tool-calling) and **scripted mode**, plus the prompt-injection scenario | US-4, demo |
+| M6 | Agent runner in **scripted mode** (fixed tool calls, real transactions), plus the prompt-injection scenario. LLM mode: see Future work (§13.1) | US-4, demo |
 | M7 | Owner dashboard: connect wallet, create rein, deposit/withdraw, merchants, live activity feed, held-payment approvals, freeze button, spend meter | US-1–3, 5–8, 10 |
 | M8 | Deployed + verified on Monad testnet and mainnet | all |
 
@@ -116,7 +116,7 @@ Existing fixes each break somewhere: allowances cap amounts but not where money 
 
 | ID | Feature | Why | Bounty |
 |---|---|---|---|
-| S1 | Agent uses **Qwen 3.8 Max** (or KIMI) as its model | Credit bounties; "agentic on Monad" | Qwen / KIMI |
+| ~~S1~~ | ~~Agent uses Qwen 3.8 Max (or KIMI) as its model~~ **Dropped** (no LLM API available); moved to Future work (§13.1) | n/a | n/a |
 | S2 | Envio HyperIndex for the activity feed | Faster history, sponsor fit | Envio |
 | S3 | Multiple agents on one dashboard | Shows the shared-contract design | — |
 | S4 | Owner gets a browser notification on `Blocked`/`Frozen` | Better alerting | — |
@@ -160,8 +160,8 @@ Existing fixes each break somewhere: allowances cap amounts but not where money 
 - **FR-18** `pay` simulates first, sends with an explicit gas limit, waits for the receipt, and returns `{ outcome, reason?, requestId?, txHash }` decoded from events.
 
 ### Agent runner (M6)
-- **FR-19** CLI: `npm run agent -- --mode llm|scripted --scenario normal|injection --network testnet|mainnet`.
-- **FR-20** LLM mode uses any OpenAI-compatible endpoint (base URL, key and model from `.env`), temperature 0, with tools: `list_merchants`, `check_budget`, `read_page`, `pay`.
+- **FR-19** CLI: `npm run agent -- [--mode scripted] --scenario normal|injection --network testnet|mainnet`. `scripted` is the only mode and the default.
+- **FR-20** The agent exposes the tools `list_merchants`, `check_budget`, `read_page`, `pay`; every call is validated locally before anything is sent. _(LLM mode that drives these tools: Future work, §13.1.)_
 - **FR-21** `read_page` serves local fixture pages; `injection` scenario includes a page with a hidden instruction to pay 500 USDC to the attacker address.
 - **FR-22** Scripted mode replays a fixed tool-call list through the same SDK, sending real transactions.
 - **FR-23** Each step prints the tool call, the outcome and the explorer link.
@@ -250,7 +250,7 @@ Existing fixes each break somewhere: allowances cap amounts but not where money 
  [Agent runner (Node)] --pay()--> [Rienda contract on Monad] --USDC--> [Merchants]
         |  uses @rienda/sdk               |  events (Paid/Held/Blocked/Frozen)
         |                                 v
-   [LLM (OpenAI-compatible)]      [Owner dashboard (Vite + React)] <-- owner wallet (Rabby/MetaMask)
+   [scripted tool calls]          [Owner dashboard (Vite + React)] <-- owner wallet (Rabby/MetaMask)
 ```
 
 No backend. The contract is the source of truth; the dashboard reads events directly.
@@ -261,7 +261,7 @@ No backend. The contract is the source of truth; the dashboard reads events dire
 |---|---|
 | Contracts | Solidity 0.8.x (pinned), Foundry ≥ 1.8.0, OpenZeppelin Contracts 5.6.1 (`SafeERC20`, `ReentrancyGuard`) |
 | SDK | TypeScript ~6.0 (not 7.x), viem 2.57.x |
-| Agent runner | Node 22 LTS or 24, `tsx` 4.23, `openai` 7.30 (OpenAI-compatible client for Qwen, KIMI or any provider) |
+| Agent runner | Node 22 LTS or 24, `tsx` 4.23 |
 | Dashboard | Vite 8.3, React 19, wagmi 3.7, @tanstack/react-query 5, viem 2.57 |
 | Chain | Monad mainnet (143, `https://rpc.monad.xyz`), testnet (10143, `https://testnet-rpc.monad.xyz`) |
 | Token | USDC — mainnet `0x754704Bc059F8C67012fEd69BC8A327a5aafb603`, testnet `0x534b2f3A21130d7a60830c2Df862319e593943A3` (from Monad's x402 guide); read `decimals()` at runtime |
@@ -387,8 +387,8 @@ const stop = rienda.watch(reinId, (event) => console.log(event));
 | E11 | Agent out of MON for gas | Transaction can't be sent; runner prints "agent needs gas"; dashboard warning (NFR-14). |
 | E12 | Owner on the wrong network | Dashboard shows "Switch to Monad" and blocks actions. |
 | E13 | RPC `getLogs` range limit | Chunked queries from the deploy block; failover RPC. |
-| E14 | LLM returns malformed tool arguments | Runner validates with a schema; invalid calls are rejected locally and logged (never sent). |
-| E15 | LLM refuses or ignores the injected instruction on camera | Scripted mode (§11); disclosed in README and video. |
+| E14 | Malformed tool arguments | Runner validates every call; invalid calls are rejected locally and logged (never sent). |
+| E15 | _(was: LLM ignores the injected instruction)_ | Not applicable: the agent is scripted, and that is disclosed in README and video. |
 | E16 | Memo with unusual characters or > 140 bytes | Reverts on length; the dashboard renders memos as plain text (no HTML). |
 
 ---
@@ -421,7 +421,7 @@ const stop = rienda.watch(reinId, (event) => console.log(event));
 
 **M6 Agent runner**
 - `--mode scripted --scenario injection` on testnet produces: 2 Paid, 1 Held, 3 Blocked, 1 Frozen, then a revert — every step with an explorer link.
-- `--mode llm --scenario normal` completes the task using only allowed merchants.
+- `--scenario normal` pays News API $2 and GPU minutes $4 (2 Paid) using only allowed merchants.
 
 **M7 Dashboard**
 - A new owner creates a funded rein with 3 merchants in ≤ 3 transactions and ≤ 2 minutes (G4).
@@ -437,7 +437,7 @@ const stop = rienda.watch(reinId, (event) => console.log(event));
 
 | Rabbit hole | Decision |
 |---|---|
-| Making the LLM follow the injected instruction reliably | Temperature 0, a fixed page, several takes; otherwise scripted mode, disclosed. Don't tune prompts for hours. |
+| Making an LLM follow the injected instruction reliably | Not attempted: the agent is scripted and disclosed as such. LLM mode is Future work (§13.1). |
 | Rolling 24-hour windows | Calendar days in UTC only. |
 | Multiple tokens, price feeds, USD conversion | USDC only; amounts are dollars. |
 | Pretty agent UI | The agent is a CLI; the dashboard is the UI. |
@@ -454,9 +454,9 @@ Times in WAT. Each day ends with an exit test; if it fails, apply the cut rule b
 | Day | Date | Build | Exit test | Cut rule if missed |
 |---|---|---|---|---|
 | 1 | Fri Oct 9 | `Rienda.sol` + unit/fuzz/invariant tests; deploy to testnet; gas snapshot | `forge test` green, coverage ≥ 95%; testnet address | Drop `setLimits` (recreate reins instead) |
-| 2 | Sat Oct 10 | SDK; agent runner (scripted first, then LLM); fixture pages incl. injection | Scripted injection scenario produces every outcome on testnet | Drop LLM mode to Day 4 |
+| 2 | Sat Oct 10 | SDK; agent runner (scripted); fixture pages incl. injection | Scripted injection scenario produces every outcome on testnet | (LLM mode dropped) |
 | 3 | Sun Oct 11 | Dashboard: connect, create rein, rein page, live feed, approvals, freeze | Full flow F1–F5 in the browser on testnet | Drop merchant editing after creation |
-| 4 | Mon Oct 12 | Mainnet deploy + verify (small USDC); 10-run timing (G2); README; S1 if time | One mainnet tx hash per outcome in README | Skip S1 |
+| 4 | Mon Oct 12 | Mainnet deploy + verify (small USDC); 10-run timing (G2); README | One mainnet tx hash per outcome in README | n/a |
 | 5 | Tue Oct 13 | Record video; final README; submit by **18:00 WAT** | Submission page complete | — |
 
 **Demo script (≤ 3:00, captions on):** (0:00) problem: the $170K agent drain. (0:20) owner creates a rein: $5/payment, $20/day, 3 merchants. (0:45) agent buys news + GPU minutes → Paid. (1:05) $12 purchase → Held → owner approves. (1:25) agent reads poisoned page → tries 500 USDC to attacker → Blocked ×3 → Frozen; balance unchanged. (2:10) explorer: blocked attempts recorded onchain. (2:25) why Monad + the 10-line SDK. (2:45) repo, contract address.
@@ -472,6 +472,12 @@ Times in WAT. Each day ends with an exit test; if it fails, apply the cut rule b
 - Detecting prompt injection inside the model.
 - Owner key recovery, multisig owners.
 - A backend, database or hosted indexer (Envio is stretch only).
+
+
+### 13.1 Future work
+
+- **LLM mode.** An agent whose purchases are chosen by a model through an OpenAI-compatible endpoint (temperature 0) calling the existing tools `list_merchants`, `check_budget`, `read_page`, `pay`, with the same local argument validation. Dropped for now because no LLM API is available. It would make the injection scenario organic instead of scripted, and unlock the Qwen / KIMI bounties (formerly S1). Rienda's guarantees do not depend on it: the contract assumes the model is fooled.
+- Per-merchant caps, categories and time-of-day rules.
 
 ---
 
@@ -493,7 +499,7 @@ It's treated exactly like a tricked agent. The key holds no USDC and can only ca
 Checking every agent payment onchain and recording blocked attempts only makes sense when fees are near zero; finality under a second means agents aren't kept waiting; independent rein state lets many agents pay at once without slowing each other. Accounts stay undelegated, so Monad's reserve-balance rule for delegated accounts never affects small agent balances.
 
 **Did you script the demo?**
-If scripted mode is used for the recording, the video and README say so. Every transaction shown is real.
+The agent is scripted (the only mode), and the video and README say so. Every transaction shown is real.
 
 ---
 
@@ -501,19 +507,19 @@ If scripted mode is used for the recording, the video and README say so. Every t
 
 - [ ] Public GitHub repo, MIT license, README with setup steps
 - [ ] Commit history across Oct 9–13 (small daily commits)
-- [ ] AI-tool use disclosed in README; external libraries attributed (OpenZeppelin, viem, wagmi, openai)
+- [ ] AI-tool use disclosed in README; external libraries attributed (OpenZeppelin, viem, wagmi)
 - [ ] Contract addresses + transaction hashes (mainnet and testnet)
 - [ ] "How Rienda uses Monad" section
 - [ ] Demo video ≤ 3:00, public, real product and real Monad transactions
 - [ ] Docs: description, architecture, stack, setup/deploy
 - [ ] No secrets in repo (scan before submit)
-- [ ] Bounty fields completed (Qwen/KIMI only if S1 ships)
+- [ ] Bounty fields completed (Envio / Alchemy only if their items ship; Qwen / KIMI dropped)
 
 ---
 
 ## 16. Open questions
 
-1. Does the Qwen bounty require Alibaba Cloud's hosted Qwen 3.8 Max specifically, and are credits available before Oct 13?
+1. ~~Qwen bounty requirements~~ Dropped: no LLM API is available.
 2. Is mainnet USDC easy to acquire on Monad in small amounts for the demo (bridge or swap)?
 3. Does the Alchemy bounty count RPC use alone as "meaningful" integration?
 

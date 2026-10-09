@@ -47,7 +47,7 @@ The contract never sends USDC to the agent or to `msg.sender` in `pay`; money on
  [Agent runner (Node)] --pay()--> [Rienda contract on Monad] --USDC--> [Merchants]
         |  uses @rienda/sdk              |  events: Paid / Held / Blocked / Frozen / ...
         |                                v
-   [LLM or script]              [Owner dashboard (Vite + React)] <-- owner wallet (MetaMask / Rabby)
+   [scripted tool calls]        [Owner dashboard (Vite + React)] <-- owner wallet (MetaMask / Rabby)
 ```
 
 No backend, database or hosted indexer: the contract is the source of truth and the dashboard reads events straight from the RPC. Details in [docs/architecture.md](docs/architecture.md).
@@ -157,12 +157,12 @@ Fill in `.env`: `OWNER_PRIVATE_KEY`, `AGENT_PRIVATE_KEY`, `AGENT_ADDRESS` (must 
 ```bash
 npx tsx scripts/create-test-rein.ts   # approves 30 USDC, creates a rein, prints the reinId
 # put that id in .env as REIN_ID=<id>
-npm run agent -- --mode scripted --scenario injection --network testnet
+npm run agent -- --scenario injection --network testnet
 ```
 
 Expected summary: **2 Paid, 1 Held, 3 Blocked, Frozen, then 1 revert**, with an explorer link per transaction. To run again, reset the rein first (denies pending requests and unfreezes): `npx tsx scripts/reset-rein.ts`.
 
-> **Scripted mode.** The agent actions in this scenario are **scripted** for reproducibility (a fixed list of tool calls through the same SDK); every transaction is real. An LLM tool-calling mode (`--mode llm`) is **not built yet**.
+> **The demo agent is scripted for reproducibility.** It replays a fixed list of tool calls through the same SDK; **every transaction is real**, and no AI model is involved. The injection scenario reads the poisoned page and then makes the attacker payment a fooled agent would make, so you can reproduce exactly what Rienda does when that happens.
 
 Mainnet is refused unless you pass `--confirm-mainnet`.
 
@@ -177,7 +177,7 @@ Optional `web/.env` (see `web/.env.example`): `VITE_NETWORK`, `VITE_RPC_URL_TEST
 
 ### Environment variables
 
-See [`.env.example`](.env.example): `RPC_URL` (optional primary RPC, e.g. Alchemy; falls back to the public RPC), `OWNER_PRIVATE_KEY`, `AGENT_ADDRESS`, `AGENT_PRIVATE_KEY`, `REIN_ID`, `ATTACKER_ADDRESS`, and `LLM_*` (reserved for the LLM mode). **Use throwaway testnet keys only.** `.env*` is git-ignored; run `gitleaks detect --source .` before pushing.
+See [`.env.example`](.env.example): `RPC_URL` (optional primary RPC, e.g. Alchemy; falls back to the public RPC), `OWNER_PRIVATE_KEY`, `AGENT_ADDRESS`, `AGENT_PRIVATE_KEY`, `REIN_ID`, `ATTACKER_ADDRESS`. **Use throwaway testnet keys only.** `.env*` is git-ignored; run `gitleaks detect --source .` before pushing.
 
 ## Threat model & limits
 
@@ -203,11 +203,11 @@ As we understand those approaches (from our own research notes; see [docs/PRD.md
 
 ## AI tools used
 
-**Claude Code (Anthropic)** was used throughout the build, working in the terminal on this repository under the owner's direction. It wrote the `Rienda.sol` contract and its unit, fuzz and invariant tests; the TypeScript SDK; the agent runner, tools and scenarios; the Vite/React dashboard; and these docs. The human owner set the scope and requirements ([docs/PRD.md](docs/PRD.md)), made every decision about keys, deploys and spending, ran the deploy and browser tests, and reviewed the results. The commit history shows the work day by day. The agent's behaviour in the demo is **scripted**; no LLM is used by the agent yet.
+**Claude Code (Anthropic)** was used throughout the build, working in the terminal on this repository under the owner's direction. It wrote the `Rienda.sol` contract and its unit, fuzz and invariant tests; the TypeScript SDK; the agent runner, tools and scenarios; the Vite/React dashboard; and these docs. The human owner set the scope and requirements ([docs/PRD.md](docs/PRD.md)), made every decision about keys, deploys and spending, ran the deploy and browser tests, and reviewed the results. The commit history shows the work day by day. The demo agent is **scripted** (a fixed tool-call list); no AI model drives it, and the AI tools above were used to write the code, not to run the demo.
 
 ## Attribution
 
-[OpenZeppelin Contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) (MIT) · [forge-std](https://github.com/foundry-rs/forge-std) · [Foundry](https://getfoundry.sh) · [viem](https://viem.sh) · [wagmi](https://wagmi.sh) · [TanStack Query](https://tanstack.com/query) · [Vite](https://vite.dev) · [React](https://react.dev) · [tsx](https://tsx.is) · [TypeScript](https://www.typescriptlang.org). The `openai` client is planned for the LLM mode and is not used yet.
+[OpenZeppelin Contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) (MIT) · [forge-std](https://github.com/foundry-rs/forge-std) · [Foundry](https://getfoundry.sh) · [viem](https://viem.sh) · [wagmi](https://wagmi.sh) · [TanStack Query](https://tanstack.com/query) · [Vite](https://vite.dev) · [React](https://react.dev) · [tsx](https://tsx.is) · [TypeScript](https://www.typescriptlang.org).
 
 ## License
 

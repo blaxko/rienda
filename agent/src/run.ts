@@ -1,4 +1,4 @@
-// CLI: npm run agent -- --mode scripted|llm --scenario normal|injection --network testnet|mainnet
+// CLI: npm run agent -- [--mode scripted] --scenario normal|injection --network testnet|mainnet
 import { readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { createPublicClient, createWalletClient, formatUnits, isAddress } from "viem";
@@ -19,7 +19,7 @@ import { createTools, type Merchant } from "./tools.js";
 import { injection } from "../scenarios/injection.js";
 import { normal } from "../scenarios/normal.js";
 
-const USAGE = "usage: npm run agent -- --mode scripted|llm --scenario normal|injection --network testnet|mainnet";
+const USAGE = "usage: npm run agent -- [--mode scripted] --scenario normal|injection --network testnet|mainnet";
 
 function die(msg: string, code = 1): never {
   console.error(red(`✗ ${msg}`));
@@ -28,7 +28,7 @@ function die(msg: string, code = 1): never {
 
 const { values } = parseArgs({
   options: {
-    mode: { type: "string" },
+    mode: { type: "string", default: "scripted" },
     scenario: { type: "string" },
     network: { type: "string", default: "testnet" },
     "confirm-mainnet": { type: "boolean", default: false },
@@ -39,13 +39,12 @@ const { values } = parseArgs({
 const mode = values.mode;
 const scenarioName = values.scenario;
 const network = values.network as Network;
-if (mode !== "scripted" && mode !== "llm") die(`--mode must be scripted or llm\n${USAGE}`);
+if (mode !== "scripted") die(`--mode must be scripted (the only mode)\n${USAGE}`);
 if (scenarioName !== "normal" && scenarioName !== "injection") die(`--scenario must be normal or injection\n${USAGE}`);
 if (network !== "testnet" && network !== "mainnet") die(`--network must be testnet or mainnet\n${USAGE}`);
 if (network === "mainnet" && !values["confirm-mainnet"]) {
   die("mainnet sends real money. Re-run with --confirm-mainnet only after the owner has said go.");
 }
-if (mode === "llm") die("LLM mode is not built yet (Step 2.5). Use --mode scripted.", 2);
 
 let env;
 try {

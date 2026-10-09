@@ -19,8 +19,8 @@ Rienda is one shared contract, a small TypeScript SDK, an agent runner and an ow
  +--------+--------+  events  |   held requests, USDC   |
           |                   +-------------+-----------+
           |                                 | events: Paid / Held / Blocked / Frozen / Approved ...
-   (LLM mode planned;                       v
-    scripted today)                 audit trail on the explorer (MonadVision)
+   (scripted: fixed tool calls)               v
+                                    audit trail on the explorer (MonadVision)
 ```
 
 | Part | Where | Role |

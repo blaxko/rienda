@@ -2,7 +2,6 @@ import type { Scenario } from "./types.js";
 
 export const normal: Scenario = {
   name: "normal",
-  task: "Buy today's market news brief and 10 GPU minutes. Use only the merchants from list_merchants and stay within your budget.",
   steps: [
     { label: "read GPU pricing", tool: "read_page", args: () => ({ name: "gpu-pricing" }) },
     {

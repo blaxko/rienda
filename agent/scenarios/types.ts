@@ -21,7 +21,5 @@ export type ScriptedStep = {
 
 export type Scenario = {
   name: "normal" | "injection";
-  /** Task given to the model in LLM mode. */
-  task: string;
   steps: ScriptedStep[];
 };
