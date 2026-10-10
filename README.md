@@ -4,6 +4,7 @@
 
 > Let your agent spend. Keep the reins.
 
+- **Live demo:** [https://rienda-production.up.railway.app](https://rienda-production.up.railway.app) · [see the demo rein](https://rienda-production.up.railway.app/rein/1) (Monad Testnet; connect MetaMask or Rabby to act on a rein you own)
 - **Hackathon:** Monad Metropolis · **Track:** Trust, Identity & AI Infrastructure
 - **Repo:** https://github.com/blaxko/rienda · **License:** MIT
 - **Demo video:** _TODO: link added before submission_
@@ -181,7 +182,7 @@ Optional `web/.env` (see `web/.env.example`): `VITE_NETWORK`, `VITE_RPC_URL_TEST
 
 ### Deploy the dashboard on Railway
 
-The dashboard is a static site (no backend). `railway.json` at the repo root builds the npm-workspaces monorepo from the root (the web app imports `packages/sdk`) and serves `web/dist` with [`serve`](https://github.com/vercel/serve) 14.2.6 on `$PORT`, with an SPA fallback so deep links like `/rein/1` work.
+**Live:** [https://rienda-production.up.railway.app](https://rienda-production.up.railway.app), deployed on Railway from `main` ([demo rein #1](https://rienda-production.up.railway.app/rein/1)). The dashboard is a static site (no backend). `railway.json` at the repo root builds the npm-workspaces monorepo from the root (the web app imports `packages/sdk`) and serves `web/dist` with [`serve`](https://github.com/vercel/serve) 14.2.6 on `$PORT`, with an SPA fallback so deep links like `/rein/1` work.
 
 - Build: `npm ci --include=dev && npm run build` (builds the SDK, then the web app)
 - Start: `npm start` (`serve -s web/dist -l tcp://0.0.0.0:$PORT`)
