@@ -63,10 +63,10 @@ You need five roles. Write each **address** (never the key) in the blanks.
   - MON: https://faucet.monad.xyz (backups: Alchemy, QuickNode Monad faucets) → deployer, owner, agent_testnet.
   - Testnet USDC (`0x534b2f3A21130d7a60830c2Df862319e593943A3`): try Circle's faucet https://faucet.circle.com (select Monad Testnet). If Monad isn't listed, ask in Discord (§6).
   - Proof: `cast balance <addr> --rpc-url https://testnet-rpc.monad.xyz` > 0 for each; owner shows testnet USDC.
-- [ ] **Mainnet funding** (amounts from §5)
-  - MON for deployer, owner, agent_mainnet.
-  - USDC to the owner. Before buying or bridging, confirm the token is exactly **`0x754704Bc059F8C67012fEd69BC8A327a5aafb603`** (native USDC on Monad, per Circle). Fake "USDC" tokens exist.
-  - Proof: `cast call 0x754704Bc059F8C67012fEd69BC8A327a5aafb603 "balanceOf(address)(uint256)" <owner> --rpc-url https://rpc.monad.xyz` shows the amount (6 decimals).
+- [ ] ~~**Mainnet funding** (amounts from §5)~~ **Deferred — testnet-only for submission**
+  - ~~MON for deployer, owner, agent_mainnet.~~
+  - ~~USDC to the owner. Before buying or bridging, confirm the token is exactly **`0x754704Bc059F8C67012fEd69BC8A327a5aafb603`** (native USDC on Monad, per Circle). Fake "USDC" tokens exist.~~
+  - ~~Proof: `cast call 0x754704Bc059F8C67012fEd69BC8A327a5aafb603 "balanceOf(address)(uint256)" <owner> --rpc-url https://rpc.monad.xyz` shows the amount (6 decimals).~~
 - [ ] **Password manager entry "Rienda"** holds: keystore password, agent keys, merchant keys, Alchemy URLs. Nothing secret lives anywhere else.
 
 ---
@@ -148,10 +148,10 @@ These go into the contract tests, SDK constants and dashboard defaults on Day 1.
 - [ ] Approved held payments count toward the daily cap? `No` (owner's explicit decision) — change here if you disagree.
 - [ ] `PAY_GAS_LIMIT`: measured with `forge snapshot` on Day 1, `+20%` → `______`
 - [ ] Agent MON for gas: `1 MON` per network.
-- [ ] **Mainnet budget (the most you're willing to lose):** `$ ____`
-  - Owner: `$30 USDC` (demo: $2 + $4 + $12 + margin) + `____ MON`
-  - Deployer: `____ MON`
-- [ ] Network for the recorded demo: `mainnet` (testnet only as fallback).
+- [ ] ~~**Mainnet budget (the most you're willing to lose):** `$ ____`~~ **Deferred — testnet-only for submission**
+  - ~~Owner: `$30 USDC` (demo: $2 + $4 + $12 + margin) + `____ MON`~~
+  - ~~Deployer: `____ MON`~~
+- [ ] ~~Network for the recorded demo: `mainnet` (testnet only as fallback).~~ **Deferred — testnet-only for submission** Demo network: **testnet**.
 - [ ] Hard rule: **no mainnet deploy or transaction without your explicit approval in Claude Code.**
 
 ---
@@ -221,7 +221,7 @@ Save these in a notes file now; they go into `agent/` and `README.md` on Day 2.
 - [ ] Alchemy and public RPCs return the right chain IDs on both networks.
 - [ ] ~~LLM smoke test returns a `pay` tool call.~~ **(dropped)**
 - [ ] Deployer, owner and agent have testnet MON; owner has testnet USDC (or the faucet question is posted and you have a plan).
-- [ ] Mainnet USDC verified at `0x7547…b603` in the owner wallet; deployer and agent have mainnet MON.
+- [ ] ~~Mainnet USDC verified at `0x7547…b603` in the owner wallet; deployer and agent have mainnet MON.~~ **Deferred — testnet-only for submission**
 - [ ] Every blank in §2 and §5 is filled.
 - [ ] Repo is `blaxko/rienda`, public, MIT, push protection on, git identity set, first commit pushed, `gitleaks` clean.
 - [ ] Metropolis project shows Rienda, Trust/Identity/AI track, and the updated repo URL.
