@@ -43,7 +43,7 @@ Existing fixes each break somewhere: allowances cap amounts but not where money 
 | ID | Goal | Measure | Target |
 |---|---|---|---|
 | G1 | Rule-breaking payments never move money | Policy-violating `pay` calls that transfer funds, across tests + demo | **0** |
-| G2 | The owner sees attacks as they happen | Agent's blocked attempt → visible in dashboard feed (mainnet) | **≤ 3 s p95** over 10 runs |
+| G2 | The owner sees attacks as they happen | Agent's blocked attempt → visible in dashboard feed (**testnet**; mainnet timing: Deferred — testnet-only for submission) | **≤ 3 s p95** over 10 runs |
 | G3 | A tricked agent stops itself | `pay` calls that succeed after the strike limit is reached | **0** (next call reverts) |
 | G4 | Setup is quick | Connect wallet → rein active with funds and merchants | **≤ 2 min, ≤ 3 transactions** |
 | G5 | The agent never holds the money | USDC balance of the agent address at any time | **0** (holds only MON for gas) |
@@ -60,7 +60,7 @@ Existing fixes each break somewhere: allowances cap amounts but not where money 
 
 ### 1.4 Hackathon success metrics
 
-- Demo video ≤ 3:00 showing all four outcomes — **Paid, Held→Approved, Blocked, Frozen** — as real Monad **mainnet** transactions with explorer links.
+- Demo video ≤ 3:00 showing all four outcomes — **Paid, Held→Approved, Blocked, Frozen** — as real Monad **testnet** transactions with explorer links. (Mainnet transactions: Deferred — testnet-only for submission.)
 - Contract verified on the explorer; test line coverage ≥ 95%.
 - Someone else clones the repo and runs the agent against testnet using only the README.
 - Every submission requirement in the hackathon rules met (§15).
@@ -110,7 +110,7 @@ Existing fixes each break somewhere: allowances cap amounts but not where money 
 | M5 | `@rienda/sdk` (TypeScript): `pay`, `getRein`, `watch` | US-9 |
 | M6 | Agent runner in **scripted mode** (fixed tool calls, real transactions), plus the prompt-injection scenario. LLM mode: see Future work (§13.1) | US-4, demo |
 | M7 | Owner dashboard: connect wallet, create rein, deposit/withdraw, merchants, live activity feed, held-payment approvals, freeze button, spend meter | US-1–3, 5–8, 10 |
-| M8 | Deployed + verified on Monad testnet and mainnet | all |
+| M8 | Deployed + verified on Monad testnet. Mainnet: **Deferred — testnet-only for submission** | all |
 
 ### Stretch (in order)
 
@@ -218,7 +218,7 @@ Existing fixes each break somewhere: allowances cap amounts but not where money 
 ### Performance
 | ID | Requirement | Target |
 |---|---|---|
-| NFR-1 | `pay` submit → receipt on mainnet | ≤ 2 s p95 |
+| NFR-1 | `pay` submit → receipt (measured on testnet; mainnet: Deferred — testnet-only for submission) | ≤ 2 s p95 |
 | NFR-2 | Event → dashboard row | ≤ 3 s p95 (G2) |
 | NFR-3 | `pay` gas | Measured with `forge snapshot`; fixed gas limit = measured + 20% |
 | NFR-4 | Dashboard history load for ≤ 500 events | ≤ 3 s |
@@ -429,7 +429,7 @@ const stop = rienda.watch(reinId, (event) => console.log(event));
 - Approve/Deny on a Held request changes its row within 3 s.
 
 **M8 Deployment**
-- Contract verified on mainnet and testnet; addresses and one transaction hash per outcome listed in the README.
+- Contract verified on testnet; address and one transaction hash per outcome listed in the README. (Mainnet deploy, mainnet rein and mainnet run: **Deferred — testnet-only for submission**.)
 
 ---
 
@@ -456,7 +456,7 @@ Times in WAT. Each day ends with an exit test; if it fails, apply the cut rule b
 | 1 | Fri Oct 9 | `Rienda.sol` + unit/fuzz/invariant tests; deploy to testnet; gas snapshot | `forge test` green, coverage ≥ 95%; testnet address | Drop `setLimits` (recreate reins instead) |
 | 2 | Sat Oct 10 | SDK; agent runner (scripted); fixture pages incl. injection | Scripted injection scenario produces every outcome on testnet | (LLM mode dropped) |
 | 3 | Sun Oct 11 | Dashboard: connect, create rein, rein page, live feed, approvals, freeze | Full flow F1–F5 in the browser on testnet | Drop merchant editing after creation |
-| 4 | Mon Oct 12 | Mainnet deploy + verify (small USDC); 10-run timing (G2); README | One mainnet tx hash per outcome in README | n/a |
+| 4 | Mon Oct 12 | ~~Mainnet deploy + verify (small USDC)~~ **Deferred — testnet-only for submission**; 10-run timing (G2) **on testnet**; README | Testnet tx hash per outcome in README (done) | n/a |
 | 5 | Tue Oct 13 | Record video; final README; submit by **18:00 WAT** | Submission page complete | — |
 
 **Demo script (≤ 3:00, captions on):** (0:00) problem: the $170K agent drain. (0:20) owner creates a rein: $5/payment, $20/day, 3 merchants. (0:45) agent buys news + GPU minutes → Paid. (1:05) $12 purchase → Held → owner approves. (1:25) agent reads poisoned page → tries 500 USDC to attacker → Blocked ×3 → Frozen; balance unchanged. (2:10) explorer: blocked attempts recorded onchain. (2:25) why Monad + the 10-line SDK. (2:45) repo, contract address.
@@ -478,6 +478,7 @@ Times in WAT. Each day ends with an exit test; if it fails, apply the cut rule b
 
 - **LLM mode.** An agent whose purchases are chosen by a model through an OpenAI-compatible endpoint (temperature 0) calling the existing tools `list_merchants`, `check_budget`, `read_page`, `pay`, with the same local argument validation. Dropped for now because no LLM API is available. It would make the injection scenario organic instead of scripted, and unlock the Qwen / KIMI bounties (formerly S1). Rienda's guarantees do not depend on it: the contract assumes the model is fooled.
 - Per-merchant caps, categories and time-of-day rules.
+- **Mainnet deployment.** Deploy `Rienda` with the mainnet USDC address (`0x7547…b603`), create a mainnet rein, run the injection scenario and time the dashboard feed there. **Deferred — testnet-only for submission**: no funds for mainnet. The contract has no testnet-specific code, and the `--network mainnet --confirm-mainnet` path stays in the CLI.
 
 ---
 
@@ -508,7 +509,7 @@ The agent is scripted (the only mode), and the video and README say so. Every tr
 - [ ] Public GitHub repo, MIT license, README with setup steps
 - [ ] Commit history across Oct 9–13 (small daily commits)
 - [ ] AI-tool use disclosed in README; external libraries attributed (OpenZeppelin, viem, wagmi)
-- [ ] Contract addresses + transaction hashes (mainnet and testnet)
+- [ ] Contract address + transaction hashes (testnet; mainnet **Deferred — testnet-only for submission**)
 - [ ] "How Rienda uses Monad" section
 - [ ] Demo video ≤ 3:00, public, real product and real Monad transactions
 - [ ] Docs: description, architecture, stack, setup/deploy
@@ -520,7 +521,7 @@ The agent is scripted (the only mode), and the video and README say so. Every tr
 ## 16. Open questions
 
 1. ~~Qwen bounty requirements~~ Dropped: no LLM API is available.
-2. Is mainnet USDC easy to acquire on Monad in small amounts for the demo (bridge or swap)?
+2. ~~Is mainnet USDC easy to acquire on Monad in small amounts for the demo?~~ Moot: **Deferred — testnet-only for submission** (no funds for mainnet).
 3. Does the Alchemy bounty count RPC use alone as "meaningful" integration?
 
 ---

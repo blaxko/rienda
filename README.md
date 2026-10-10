@@ -7,7 +7,7 @@
 - **Hackathon:** Monad Metropolis · **Track:** Trust, Identity & AI Infrastructure
 - **Repo:** https://github.com/blaxko/rienda · **License:** MIT
 - **Demo video:** _TODO: link added before submission_
-- **Status:** working on Monad **testnet** (contract verified, 4 outcomes with real transactions below). **Mainnet: coming**, see [Mainnet](#mainnet-coming).
+- **Network:** Monad **Testnet** (chain 10143), testnet-only for the submission. Contract verified; all 4 outcomes shown below with real transactions. See [Network](#network-monad-testnet-chain-10143).
 - **Demo agent:** scripted for reproducibility; **every transaction is real**, and no AI model is involved.
 
 ---
@@ -70,7 +70,7 @@ Solidity 0.8.28 + Foundry · OpenZeppelin Contracts 5.6.1 (`SafeERC20`, `Reentra
 
 ## Contract addresses & transactions
 
-### Monad testnet (chain 10143)
+### Deployment of record: Monad testnet
 
 | What | Value |
 |---|---|
@@ -90,18 +90,9 @@ Solidity 0.8.28 + Foundry · OpenZeppelin Contracts 5.6.1 (`SafeERC20`, `Reentra
 
 After the freeze the agent's next `pay` is rejected (`ReinFrozen`); that call is stopped at simulation, so it costs no gas and leaves no transaction.
 
-### Mainnet: coming
+### Network: Monad Testnet (chain 10143)
 
-> **Coming: not deployed yet.** This section is intentionally empty. It will be filled in after the mainnet deploy, which happens only after the owner's explicit go-ahead.
-
-| What | Value |
-|---|---|
-| `Rienda` | _TBD_ |
-| Deploy block / tx | _TBD_ |
-| USDC | `0x754704Bc059F8C67012fEd69BC8A327a5aafb603` |
-| Verification | _TBD_ |
-| Paid / Held / Blocked / Blocked+Frozen tx hashes | _TBD_ |
-| Dashboard event latency (10 runs, p95) | _TBD_ |
+Rienda ships **testnet-only** for the hackathon submission. The contract has no testnet-specific code; mainnet needs only a deploy with the mainnet USDC address (`0x754704Bc059F8C67012fEd69BC8A327a5aafb603`). The testnet address, deploy block and the four proof transactions above are the deployment of record.
 
 ## SDK quickstart (≤ 10 lines)
 
@@ -165,7 +156,7 @@ Expected summary: **2 Paid, 1 Held, 3 Blocked, Frozen, then 1 revert**, with an 
 
 > **The demo agent is scripted for reproducibility.** It replays a fixed list of tool calls through the same SDK; **every transaction is real**, and no AI model is involved. The injection scenario reads the poisoned page and then makes the attacker payment a fooled agent would make, so you can reproduce exactly what Rienda does when that happens.
 
-Mainnet is refused unless you pass `--confirm-mainnet`.
+The CLI also accepts `--network mainnet`, but it is refused unless you pass `--confirm-mainnet`, and no mainnet deployment exists yet.
 
 ### 4. Owner dashboard
 
@@ -196,7 +187,7 @@ As we understand those approaches (from our own research notes; see [docs/PRD.md
 - **Recipient allowlist.** Allowance-style caps limit amounts but let the spender send money anywhere.
 - **Blocked attempts are recorded onchain** instead of reverting, so the owner sees what the agent was tricked into trying.
 - **Auto-freeze** after repeated rule-breaking, and **hold-for-approval** for large payments instead of a flat refusal.
-- Built and demonstrated on **Monad** (testnet now, mainnet pending).
+- Built, deployed, verified and demonstrated on **Monad Testnet**.
 
 ## Pre-existing code
 

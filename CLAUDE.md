@@ -11,6 +11,7 @@ Source of truth for scope: `docs/PRD.md`. If this file and the PRD disagree, the
 - **Hackathon:** Monad Metropolis. **Deadline: Oct 13, 2026, 11:59 PM ET = Oct 14, 04:59 WAT.** Internal deadline: **Oct 13, 18:00 WAT.**
 - **Primary track:** Trust, Identity & AI Infrastructure — Rienda is a shared contract + SDK other agent builders use, not a standalone consumer app.
 - **Bounties (only if their stretch item ships):** Envio (S2) · Alchemy (if RPC counts as meaningful). Qwen / KIMI (LLM agent model) are **dropped**: no LLM API is available.
+- **Decision (Oct 10): testnet-only for submission** (no funds for mainnet). Mainnet deploy, mainnet rein, mainnet agent run and the mainnet latency timing are **Deferred**. The `--network mainnet` / `--confirm-mainnet` code stays. The contract has no testnet-specific code; mainnet needs only a deploy with the mainnet USDC address.
 - **Judging:** Product 20 · Technical 20 · Monad integration 20 · Track fit 20 · Innovation 20.
 
 **How it works:**
@@ -26,7 +27,7 @@ Source of truth for scope: `docs/PRD.md`. If this file and the PRD disagree, the
 4. Strikes ≥ `maxStrikes` → **Frozen** in the same tx; later `pay` calls revert.
 5. Dashboard shows every event live; owner approves, freezes, withdraws.
 
-**Differs from AgentLeash/MetaMask permissions:** plain contract + any wallet, recipient allowlist, blocked attempts recorded onchain, auto-freeze, hold-for-approval, Monad mainnet. Say this in README and video.
+**Differs from AgentLeash/MetaMask permissions:** plain contract + any wallet, recipient allowlist, blocked attempts recorded onchain, auto-freeze, hold-for-approval, built on Monad (testnet for the submission). Say this in README and video.
 
 ---
 
@@ -116,10 +117,10 @@ Each phase ends with its exit test passing. No stretch work while any Must box i
 4. [x] **Day 3 (Sun Oct 11) — Dashboard**
    - [x] Connect wallet (EIP-6963 picker), create rein (approve + create ≤ 3 tx), rein page, live feed, held approvals, freeze/unfreeze, low-gas warning (built; not yet seen in a browser test)
    - [x] Exit: flows F1–F5 in the browser on testnet (verified Oct 9: rein #0 approve/unfreeze/withdraw-close; rein #1 created from /new, injection run, feed ≤ ~3 s, FROZEN banner, Approve disabled below balance)
-5. [ ] **Day 4 (Mon Oct 12) — Mainnet + proof**
-   - [ ] Deploy + verify on mainnet with small USDC
-   - [ ] Run injection scenario on mainnet; record one tx hash per outcome in README
-   - [ ] 10-run timing: blocked event → dashboard ≤ 3 s p95
+5. [ ] **Day 4 (Mon Oct 12) — Proof (testnet-only; mainnet deferred)**
+   - [~] ~~Deploy + verify on mainnet with small USDC~~ **Deferred — testnet-only for submission**
+   - [~] ~~Run injection scenario on mainnet; record one tx hash per outcome in README~~ **Deferred — testnet-only for submission** (testnet proof txs are already in the README)
+   - [ ] 10-run timing: blocked event → dashboard ≤ 3 s p95, **on testnet** (later step; the mainnet timing is Deferred — testnet-only for submission)
    - [ ] README complete
 6. [ ] **Day 5 (Tue Oct 13) — Video + submit** by 18:00 WAT. No new features.
 

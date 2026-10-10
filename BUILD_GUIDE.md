@@ -439,10 +439,14 @@ gitleaks detect --source . && git add -A && git commit -m "Day 3: owner dashboar
 
 ## Day 4 — Mon Oct 12: Mainnet and proof
 
-**Goal:** working on Monad mainnet with real USDC, transaction hashes in the README, dashboard online.
+> **Decision (Oct 10): testnet-only for submission.** Steps 4.1 and 4.2 (mainnet deploy, mainnet rein, mainnet agent run) are **Deferred — testnet-only for submission**. The latency timing (Step 4.4) is done on testnet.
+
+**Goal:** ~~working on Monad mainnet with real USDC~~ (deferred) transaction hashes in the README (testnet), dashboard online.
 **Cut rule if behind:** skip S1 (Qwen/KIMI) and the timing test; keep mainnet + README.
 
-### Step 4.1 🔴 Deploy to mainnet (you approve)
+### ~~Step 4.1 🔴 Deploy to mainnet (you approve)~~ — DEFERRED
+
+**Deferred — testnet-only for submission.** _Old text, kept for reference only. Do not do this step:_
 
 **Prompt:**
 ```
@@ -462,7 +466,9 @@ Mainnet Rienda is at <ADDRESS>, block <BLOCK>. Update packages/sdk/src/addresses
 
 ---
 
-### Step 4.2 🔴 Run the demo on mainnet and collect hashes
+### ~~Step 4.2 🔴 Run the demo on mainnet and collect hashes~~ — DEFERRED
+
+**Deferred — testnet-only for submission.** The testnet transaction hashes are already in the README. _Old text, kept for reference only. Do not do this step:_
 
 **Do:**
 1. Create a mainnet rein from the dashboard with your owner wallet ($30 USDC).
@@ -490,13 +496,15 @@ Prepare web/ for deployment on Vercel: build command, output folder, env variabl
 
 **You do:** follow the steps; open the live URL and connect your wallet.
 
-**Success:** The live dashboard shows your mainnet rein and its feed.
+**Success:** The live dashboard shows your rein and its feed (the testnet rein; the mainnet rein is Deferred — testnet-only for submission).
 
 **If it fails:** Fallback — run the dashboard locally for the video and say "run locally" in the README. Hosting is a nice-to-have.
 
 ---
 
-### Step 4.4 Timing check (G2)
+### Step 4.4 Timing check (G2): on testnet (a later step)
+
+> The mainnet 10-run timing is **Deferred — testnet-only for submission**. Do this on testnet, later (not yet done).
 
 **Prompt:**
 ```
@@ -565,7 +573,7 @@ gitleaks detect --source . && git add -A && git commit -m "Day 4: mainnet deploy
 ### Step 5.1 Rehearse
 
 **Do:**
-1. Create a **fresh** mainnet rein (so the feed starts clean).
+1. Create a **fresh** rein on testnet (so the feed starts clean; the mainnet rein is Deferred — testnet-only for submission).
 2. Arrange the screen: terminal on the left, dashboard on the right, explorer tab ready.
 3. Read the pitch (below) aloud once with a timer.
 4. Do one full dry run of the demo without recording.
@@ -637,7 +645,7 @@ gitleaks detect --source . && git add -A && git commit -m "Day 5: final README a
 - [ ] Repo public, MIT license, README with setup steps
 - [ ] Commit history covers Oct 9–13
 - [ ] Demo video link (≤ 3:00, public/unlisted, plays logged-out)
-- [ ] Contract addresses (mainnet + testnet) and transaction hashes
+- [ ] Contract addresses (testnet; mainnet Deferred — testnet-only for submission) and transaction hashes
 - [ ] "How Rienda uses Monad" section in README
 - [ ] Docs: description, architecture, tech stack, setup/deploy
 - [ ] AI tools disclosed; pre-existing code: none; libraries attributed
