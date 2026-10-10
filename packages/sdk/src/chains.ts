@@ -10,6 +10,7 @@ export const PUBLIC_RPC = {
 
 export const monadMainnet = defineChain({
   id: 143,
+  blockTime: 400, // Monad block time (ms): viem derives its receipt polling interval from this (500 ms)
   name: "Monad",
   nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
   rpcUrls: { default: { http: [PUBLIC_RPC.mainnet] } },
@@ -19,6 +20,7 @@ export const monadMainnet = defineChain({
 
 export const monadTestnet = defineChain({
   id: 10143,
+  blockTime: 400, // Monad block time (ms): viem derives its receipt polling interval from this (500 ms)
   name: "Monad Testnet",
   nativeCurrency: { name: "Monad", symbol: "MON", decimals: 18 },
   rpcUrls: { default: { http: [PUBLIC_RPC.testnet] } },
