@@ -90,6 +90,18 @@ Solidity 0.8.28 + Foundry · OpenZeppelin Contracts 5.6.1 (`SafeERC20`, `Reentra
 
 After the freeze the agent's next `pay` is rejected (`ReinFrozen`); that call is stopped at simulation, so it costs no gas and leaves no transaction.
 
+### Latency (Monad Testnet)
+
+Measured Oct 10 with `scripts/timing.ts`: 10 sequential `pay()` calls of $1 each from the agent on rein #1 (all **Paid**), timed from sending the transaction to getting its receipt, over the public testnet RPC.
+
+| Metric | send → receipt |
+|---|---|
+| **Median** | **1045 ms** |
+| **p95** (nearest-rank; with 10 samples this is the slowest pay) | **1206 ms** |
+| Min / max / mean | 1007 / 1206 / 1068 ms |
+
+That meets the PRD target of ≤ 2 s p95 for a payment to be confirmed (NFR-1). Receipt polling is 500 ms (the chain's 400 ms block time), so each figure includes up to half a second of polling. This is the **agent-side** confirmation time; it is not the dashboard's event-visibility time, which is a separate number we have not measured. Re-run it with `npx tsx scripts/timing.ts` (plan only) and `--send` to send.
+
 ### Network: Monad Testnet (chain 10143)
 
 Rienda ships **testnet-only** for the hackathon submission. The contract has no testnet-specific code; mainnet needs only a deploy with the mainnet USDC address (`0x754704Bc059F8C67012fEd69BC8A327a5aafb603`). The testnet address, deploy block and the four proof transactions above are the deployment of record.

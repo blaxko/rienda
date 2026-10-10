@@ -120,7 +120,7 @@ Each phase ends with its exit test passing. No stretch work while any Must box i
 5. [ ] **Day 4 (Mon Oct 12) — Proof (testnet-only; mainnet deferred)**
    - [~] ~~Deploy + verify on mainnet with small USDC~~ **Deferred — testnet-only for submission**
    - [~] ~~Run injection scenario on mainnet; record one tx hash per outcome in README~~ **Deferred — testnet-only for submission** (testnet proof txs are already in the README)
-   - [ ] 10-run timing: blocked event → dashboard ≤ 3 s p95, **on testnet** (later step; the mainnet timing is Deferred — testnet-only for submission)
+   - [~] 10-run timing, **on testnet**: send→receipt measured Oct 10 (median 1045 ms, p95 1206 ms, `scripts/timing.ts`); the dashboard event-visibility timing (≤ 3 s p95, G2) is still unmeasured. Original: blocked event → dashboard ≤ 3 s p95 (later step; the mainnet timing is Deferred — testnet-only for submission)
    - [ ] README complete
 6. [ ] **Day 5 (Tue Oct 13) — Video + submit** by 18:00 WAT. No new features.
 
