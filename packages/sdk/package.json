@@ -21,9 +21,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "typescript": "~6.0.3",
     "viem": "~2.57.4"
-  },
-  "devDependencies": {
-    "typescript": "~6.0.3"
   }
 }
