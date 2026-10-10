@@ -266,7 +266,7 @@ No backend. The contract is the source of truth; the dashboard reads events dire
 | Chain | Monad mainnet (143, `https://rpc.monad.xyz`), testnet (10143, `https://testnet-rpc.monad.xyz`) |
 | Token | USDC — mainnet `0x754704Bc059F8C67012fEd69BC8A327a5aafb603`, testnet `0x534b2f3A21130d7a60830c2Df862319e593943A3` (from Monad's x402 guide); read `decimals()` at runtime |
 | RPC | Alchemy Monad (primary) + public RPC (fallback) |
-| Hosting | Static (Vercel or Railway) for the dashboard |
+| Hosting | Static site on Railway (`serve -s web/dist`, config in `railway.json`) for the dashboard |
 
 ### 8.3 Repo layout
 

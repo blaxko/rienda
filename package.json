@@ -5,18 +5,27 @@
   "version": "0.1.0",
   "description": "Onchain spending limits for AI agents on Monad",
   "license": "MIT",
+  "engines": {
+    "node": ">=22.12"
+  },
   "workspaces": [
     "packages/*",
     "agent",
     "web"
   ],
   "devDependencies": {
-    "typescript": "~6.0.3",
+    "@types/node": "^22.20.5",
     "tsx": "~4.23.15",
-    "@types/node": "^22.20.5"
+    "typescript": "~6.0.3"
   },
   "scripts": {
     "build:sdk": "npm run build -w packages/sdk",
+    "build:web": "npm run build -w web",
+    "build": "npm run build:sdk && npm run build:web",
+    "start": "serve -s web/dist -l tcp://0.0.0.0:${PORT:-3000}",
     "agent": "tsx agent/src/run.ts"
+  },
+  "dependencies": {
+    "serve": "14.2.6"
   }
 }

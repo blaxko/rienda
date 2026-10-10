@@ -53,7 +53,7 @@ Source of truth for scope: `docs/PRD.md`. If this file and the PRD disagree, the
 | | USDC testnet | `0x534b2f3A21130d7a60830c2Df862319e593943A3` |
 | RPC | Alchemy Monad (primary) + public RPC (fallback) | — |
 | Explorer verify | MonadVision (Sourcify) | `https://sourcify-api-monad.blockvision.org/` |
-| Hosting | Vercel or Railway (static dashboard) | — |
+| Hosting | **Railway** (static dashboard served by `serve` 14.2.6; config in `railway.json`) | — |
 
 Read USDC `decimals()` at runtime (expect 6).
 
@@ -197,6 +197,7 @@ npm run agent -- --mode scripted --scenario injection --network testnet
 npm run agent -- --mode scripted --scenario normal --network testnet
 npm run dev -w web            # open http://localhost:5173 in Windows browser
 npm run build -w web && npm run preview -w web
+npm run build && npm start    # Railway commands: build sdk + web, then serve web/dist on $PORT (SPA fallback)
 ```
 
 ### Hygiene

@@ -491,10 +491,15 @@ Here is the agent's mainnet output: <paste>. Make a table of one transaction has
 
 **Prompt:**
 ```
-Prepare web/ for deployment on Vercel: build command, output folder, env variables needed (only public RPC URLs, no keys). Tell me the exact steps in the Vercel website.
+Prepare web/ for deployment on Railway: build command, start command, env variables needed (only public RPC URLs, no keys). Tell me the exact steps in the Railway website.
 ```
 
-**You do:** follow the steps; open the live URL and connect your wallet.
+_Done: the deploy target is **Railway**, not Vercel. The config is `railway.json` at the repo root (build from the repo root, serve `web/dist` with `serve -s` on `$PORT`, SPA fallback). See "Deploy the dashboard on Railway" in README.md._
+
+```
+```
+
+**You do:** follow the Railway steps; open the live URL and connect your wallet.
 
 **Success:** The live dashboard shows your rein and its feed (the testnet rein; the mainnet rein is Deferred — testnet-only for submission).
 

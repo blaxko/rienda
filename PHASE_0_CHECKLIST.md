@@ -27,7 +27,7 @@ Tick a box only when you can point to the proof written next to it.
 - **Dropped — no LLM API available; the demo agent is scripted (see README).** (The LLM API key item was removed from this checklist.)
 - [ ] ~~**Hackathon credits** — if going for Qwen/KIMI bounties, ask in the Metropolis Discord how to claim the sponsor credits. Proof: question posted / credits visible in console.~~ **(dropped: Qwen/KIMI bounties dropped)**
 - [ ] **Sponsor perk: Tenderly Pro** — claim from the Metropolis Resources page (one voucher per team). Useful for simulating and debugging `pay` transactions. Proof: Tenderly project created.
-- [ ] **Hosting for the dashboard** — Vercel (https://vercel.com, sign in with GitHub) or Railway. Proof: account exists and is linked to GitHub. (Deploy happens on Day 3–4.)
+- [ ] **Hosting for the dashboard** — **Railway** (https://railway.com, sign in with GitHub); Vercel is not used. Proof: account exists and is linked to GitHub. (Deploy happens on Day 3–4.)
 - [ ] **Video host** — YouTube channel or Loom that can publish a public/unlisted video ≤ 3:00. Proof: a 5-second test upload opens logged-out.
 - [ ] **Discord** — in Monad's Discord, find the Metropolis channel. Post the questions in §6.
 

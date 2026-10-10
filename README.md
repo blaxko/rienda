@@ -179,6 +179,15 @@ npm run build -w web        # static build in web/dist
 
 Optional `web/.env` (see `web/.env.example`): `VITE_NETWORK`, `VITE_RPC_URL_TESTNET`. Anything in it is public in the browser bundle. The dashboard can create a rein itself at `/new` (approve + create), show the live feed, approve or deny held payments, freeze, deposit and withdraw.
 
+### Deploy the dashboard on Railway
+
+The dashboard is a static site (no backend). `railway.json` at the repo root builds the npm-workspaces monorepo from the root (the web app imports `packages/sdk`) and serves `web/dist` with [`serve`](https://github.com/vercel/serve) 14.2.6 on `$PORT`, with an SPA fallback so deep links like `/rein/1` work.
+
+- Build: `npm ci --include=dev && npm run build` (builds the SDK, then the web app)
+- Start: `npm start` (`serve -s web/dist -l tcp://0.0.0.0:$PORT`)
+- Variables (Railway **Variables** tab; all optional, all public in the bundle, never put keys here): `VITE_NETWORK` (`testnet`, the default), `VITE_RPC_URL_TESTNET` (a higher-limit RPC speeds up history loading; the public RPC is the fallback).
+- Local check of the same commands: `npm ci --include=dev && npm run build && PORT=4173 npm start`, then open `http://localhost:4173/rein/1`.
+
 ### Environment variables
 
 See [`.env.example`](.env.example): `RPC_URL` (optional primary RPC, e.g. Alchemy; falls back to the public RPC), `OWNER_PRIVATE_KEY`, `AGENT_ADDRESS`, `AGENT_PRIVATE_KEY`, `REIN_ID`, `ATTACKER_ADDRESS`. **Use throwaway testnet keys only.** `.env*` is git-ignored; run `gitleaks detect --source .` before pushing.
