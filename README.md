@@ -178,11 +178,11 @@ npm run dev -w web          # open http://localhost:5173 and connect MetaMask or
 npm run build -w web        # static build in web/dist
 ```
 
-Optional `web/.env` (see `web/.env.example`): `VITE_NETWORK`, `VITE_RPC_URL_TESTNET`, `VITE_WALLETCONNECT_PROJECT_ID` (shows the WalletConnect option), `VITE_LOGS_RPC=none` (skip the faster third-party RPC the activity history uses; the public RPC is always the fallback). Anything in it is public in the browser bundle. The dashboard can create a rein itself at `/new` (approve + create), show the live feed, approve or deny held payments, freeze, deposit and withdraw.
+Optional `web/.env` (see `web/.env.example`): `VITE_NETWORK`, `VITE_RPC_URL_TESTNET`, `VITE_WALLETCONNECT_PROJECT_ID` (turns on the Reown AppKit wallet modal: WalletConnect, mobile deep links and wallet logos; without it the dashboard offers installed wallets and Coinbase only), `VITE_LOGS_RPC=none` (skip the faster third-party RPC the activity history uses; the public RPC is always the fallback). Anything in it is public in the browser bundle. The site has real pages (`/about`, `/how-it-works`, `/try`, `/developers`, `/security`), each with its own title, description and static HTML, and the dashboard lives at `/app`. The dashboard can create a rein itself at `/new` (approve + create), show the live feed, approve or deny held payments, freeze, deposit and withdraw.
 
 ### Deploy the dashboard on Railway
 
-**Live:** [https://rienda-production.up.railway.app](https://rienda-production.up.railway.app), deployed on Railway from `main` ([demo rein #2](https://rienda-production.up.railway.app/rein/2)). The dashboard is a static site (no backend). `railway.json` at the repo root builds the npm-workspaces monorepo from the root (the web app imports `packages/sdk`) and serves `web/dist` with [`serve`](https://github.com/vercel/serve) 14.2.6 on `$PORT`, with an SPA fallback so deep links like `/rein/1` work.
+**Live:** [https://rienda-production.up.railway.app](https://rienda-production.up.railway.app), deployed on Railway from `main` ([demo rein #2](https://rienda-production.up.railway.app/rein/2)). The dashboard is a static site (no backend). `railway.json` at the repo root builds the npm-workspaces monorepo from the root (the web app imports `packages/sdk`) and serves `web/dist` with [`serve`](https://github.com/vercel/serve) 14.2.6 on `$PORT`. `web/public/serve.json` rewrites only the app routes (`/app`, `/new`, `/rein/:id`) to the SPA, so each marketing page is served as its own HTML file; unknown paths get `404.html` (the SPA's not-found page).
 
 - Build: `npm ci --include=dev && npm run build` (builds the SDK, then the web app)
 - Start: `npm start` (`serve -s web/dist -l tcp://0.0.0.0:$PORT`)
