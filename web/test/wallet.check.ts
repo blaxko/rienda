@@ -34,7 +34,7 @@ o = walletOptions([...base], { hasLegacyProvider: true });
 assert.deepEqual(o.map((x) => x.name), ["Browser wallet", "Coinbase Wallet"]);
 assert.equal(walletOptions([...base], { hasLegacyProvider: false }).length, 1);
 
-assert.equal(metamaskDeepLink({ host: "rienda.app", pathname: "/rein/1", search: "" }), "https://metamask.app.link/dapp/rienda.app/rein/1");
+assert.equal(metamaskDeepLink({ host: "rienda.app", pathname: "/rein/2", search: "" }), "https://metamask.app.link/dapp/rienda.app/rein/2");
 
 // demo rules (same order as the contract)
 let s = initialDemo();

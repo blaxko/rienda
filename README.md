@@ -4,7 +4,7 @@
 
 > Let your agent spend. Keep the reins.
 
-- **Live demo:** [https://rienda-production.up.railway.app](https://rienda-production.up.railway.app) · [see the demo rein](https://rienda-production.up.railway.app/rein/1) (Monad Testnet; connect MetaMask or Rabby to act on a rein you own)
+- **Live demo:** [https://rienda-production.up.railway.app](https://rienda-production.up.railway.app) · [see the demo rein #2](https://rienda-production.up.railway.app/rein/2) (Monad Testnet; connect MetaMask or Rabby to act on a rein you own)
 - **Hackathon:** Monad Metropolis · **Track:** Trust, Identity & AI Infrastructure
 - **Repo:** https://github.com/blaxko/rienda · **License:** MIT
 - **Demo video:** _TODO: link added before submission_
@@ -80,7 +80,7 @@ Solidity 0.8.28 + Foundry · OpenZeppelin Contracts 5.6.1 (`SafeERC20`, `Reentra
 | USDC | `0x534b2f3A21130d7a60830c2Df862319e593943A3` |
 | Verification | Sourcify (MonadVision), exact runtime-bytecode match |
 
-**One real transaction per outcome** (scripted injection run on rein #1; the agent is scripted, every transaction is real and was sent to Monad testnet):
+**One real transaction per outcome** (scripted injection run on **earlier demo rein #1**, now closed; the agent is scripted, every transaction is real and was sent to Monad testnet):
 
 | Outcome | What happened | Block | Transaction |
 |---|---|---|---|
@@ -93,7 +93,7 @@ After the freeze the agent's next `pay` is rejected (`ReinFrozen`); that call is
 
 ### Latency (Monad Testnet)
 
-Measured Oct 10 with `scripts/timing.ts`: 10 sequential `pay()` calls of $1 each from the agent on rein #1 (all **Paid**), timed from sending the transaction to getting its receipt, over the public testnet RPC.
+Measured Oct 10 with `scripts/timing.ts`: 10 sequential `pay()` calls of $1 each from the agent on earlier demo rein #1 (all **Paid**), timed from sending the transaction to getting its receipt, over the public testnet RPC.
 
 | Metric | send → receipt |
 |---|---|
@@ -120,7 +120,7 @@ const chain = chainFor("testnet"), transport = transportFor("testnet");
 const publicClient = createPublicClient({ chain, transport });
 const walletClient = createWalletClient({ chain, transport, account: privateKeyToAccount(process.env.AGENT_PRIVATE_KEY as `0x${string}`) });
 const rienda = createRienda({ address: addresses.testnet.rienda, publicClient, walletClient });
-const r = await rienda.pay({ reinId: 1n, to: "0xMerchant…", amount: parseUnits("2", 6), memo: "News brief" });
+const r = await rienda.pay({ reinId: 2n, to: "0xMerchant…", amount: parseUnits("2", 6), memo: "News brief" });
 console.log(r.outcome, r.reason, r.txHash); // "Paid" | "Held" | "Blocked", reason, tx
 ```
 
@@ -144,7 +144,7 @@ npm run build -w packages/sdk             # the agent and dashboard import the b
 ```bash
 cd contracts
 forge build
-forge test                  # 79 unit + 7 fuzz + 5 invariant tests
+forge test                  # 88 tests: 79 unit + 7 fuzz + 1 invariant + 1 gas
 forge coverage --report summary --ir-minimum   # Rienda.sol ~99% lines
 ```
 
@@ -182,12 +182,12 @@ Optional `web/.env` (see `web/.env.example`): `VITE_NETWORK`, `VITE_RPC_URL_TEST
 
 ### Deploy the dashboard on Railway
 
-**Live:** [https://rienda-production.up.railway.app](https://rienda-production.up.railway.app), deployed on Railway from `main` ([demo rein #1](https://rienda-production.up.railway.app/rein/1)). The dashboard is a static site (no backend). `railway.json` at the repo root builds the npm-workspaces monorepo from the root (the web app imports `packages/sdk`) and serves `web/dist` with [`serve`](https://github.com/vercel/serve) 14.2.6 on `$PORT`, with an SPA fallback so deep links like `/rein/1` work.
+**Live:** [https://rienda-production.up.railway.app](https://rienda-production.up.railway.app), deployed on Railway from `main` ([demo rein #2](https://rienda-production.up.railway.app/rein/2)). The dashboard is a static site (no backend). `railway.json` at the repo root builds the npm-workspaces monorepo from the root (the web app imports `packages/sdk`) and serves `web/dist` with [`serve`](https://github.com/vercel/serve) 14.2.6 on `$PORT`, with an SPA fallback so deep links like `/rein/1` work.
 
 - Build: `npm ci --include=dev && npm run build` (builds the SDK, then the web app)
 - Start: `npm start` (`serve -s web/dist -l tcp://0.0.0.0:$PORT`)
 - Variables (Railway **Variables** tab; all optional, all public in the bundle, never put keys here): `VITE_NETWORK` (`testnet`, the default), `VITE_RPC_URL_TESTNET` (a higher-limit RPC speeds up history loading; the public RPC is the fallback).
-- Local check of the same commands: `npm ci --include=dev && npm run build && PORT=4173 npm start`, then open `http://localhost:4173/rein/1`.
+- Local check of the same commands: `npm ci --include=dev && npm run build && PORT=4173 npm start`, then open `http://localhost:4173/rein/2`.
 
 ### Environment variables
 

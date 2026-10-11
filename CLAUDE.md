@@ -12,7 +12,7 @@ Source of truth for scope: `docs/PRD.md`. If this file and the PRD disagree, the
 - **Primary track:** Trust, Identity & AI Infrastructure — Rienda is a shared contract + SDK other agent builders use, not a standalone consumer app.
 - **Bounties (only if their stretch item ships):** Envio (S2) · Alchemy (if RPC counts as meaningful). Qwen / KIMI (LLM agent model) are **dropped**: no LLM API is available.
 - **Decision (Oct 10): testnet-only for submission** (no funds for mainnet). Mainnet deploy, mainnet rein, mainnet agent run and the mainnet latency timing are **Deferred**. The `--network mainnet` / `--confirm-mainnet` code stays. The contract has no testnet-specific code; mainnet needs only a deploy with the mainnet USDC address.
-- **Live dashboard (Railway):** https://rienda-production.up.railway.app · demo rein: https://rienda-production.up.railway.app/rein/1 (testnet). Redeploys from `main`; config in `railway.json`.
+- **Live dashboard (Railway):** https://rienda-production.up.railway.app · demo rein #2: https://rienda-production.up.railway.app/rein/2 (testnet; rein #1 is closed, its proof txs stay in the README as the earlier demo rein). Redeploys from `main`; config in `railway.json`.
 - **Judging:** Product 20 · Technical 20 · Monad integration 20 · Track fit 20 · Innovation 20.
 
 **How it works:**

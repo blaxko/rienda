@@ -210,7 +210,7 @@ const chain = chainFor("testnet"), transport = transportFor("testnet");
 const publicClient = createPublicClient({ chain, transport });
 const walletClient = createWalletClient({ chain, transport, account: privateKeyToAccount(process.env.AGENT_PRIVATE_KEY) });
 const rienda = createRienda({ address: addresses.testnet.rienda, publicClient, walletClient });
-const r = await rienda.pay({ reinId: 1n, to: "0xMerchant…", amount: parseUnits("2", 6), memo: "News brief" });
+const r = await rienda.pay({ reinId: 2n, to: "0xMerchant…", amount: parseUnits("2", 6), memo: "News brief" });
 console.log(r.outcome, r.reason, r.txHash); `}<span className="c">{`// "Paid" | "Held" | "Blocked", reason, tx`}</span>{`
 `}</pre>
             </div>
@@ -233,7 +233,7 @@ console.log(r.outcome, r.reason, r.txHash); `}<span className="c">{`// "Paid" | 
             </div>
             <div className="facts stagger">
               <div><div className="fact-n"><CountUp to={1045} suffix=" ms" /></div><p>Median time for a payment to confirm on testnet, over 10 runs.</p></div>
-              <div><div className="fact-n"><CountUp to={79} /></div><p>Unit tests, one per rule and edge case, plus fuzz and invariant tests. Run them with <span className="mono">forge test</span>.</p></div>
+              <div><div className="fact-n"><CountUp to={88} /></div><p>Tests: 79 unit, 7 fuzz, 1 invariant and 1 gas. Run them with <span className="mono">forge test</span>.</p></div>
               <div><div className="fact-n"><CountUp to={6} /></div><p>Checks on every payment, always in the same order.</p></div>
             </div>
           </section>
