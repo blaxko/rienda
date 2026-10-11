@@ -1,4 +1,5 @@
 import { Lock01 } from "@untitledui/icons";
+import { ErrorNotice } from "./ErrorNotice";
 import { txUrl } from "../config";
 import { fmtTime, fmtUsdc, shortAddr } from "../lib/format";
 import type { ChainEvent, ReinView } from "../lib/events";
@@ -73,7 +74,7 @@ export function Feed({ view, times, decimals, loading, error, onRefresh }: Props
         <h2 style={{ margin: 0 }}>Activity {loading && <span className="muted" style={{ fontWeight: 400, fontSize: ".85rem" }}>· loading history…</span>}</h2>
         <button className="btn ghost small" onClick={onRefresh}>Refresh</button>
       </div>
-      {error && <p className="tx tx-err">Could not load activity: {error}</p>}
+      {error && <ErrorNotice error={error} title="Couldn't load the activity." onRetry={onRefresh} />}
       {!loading && view.feed.length === 0 && !error && <p className="muted">No activity yet.</p>}
       <ul className="feed">
         {view.feed.map((e) => (

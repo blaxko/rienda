@@ -12,6 +12,7 @@ import { Feed } from "../components/Feed";
 import { HeldPanel } from "../components/HeldPanel";
 import { AlertTriangle, Lock01, SlashCircle01 } from "@untitledui/icons";
 import { StatusPill } from "../components/StatusPill";
+import { ErrorNotice } from "../components/ErrorNotice";
 import { Link } from "../router";
 import { cleanAddress, parseAddress } from "../lib/address";
 
@@ -58,14 +59,7 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
         <div className="skeleton" style={{ height: 200 }} />
       </section>
     );
-  if (reinQ.error)
-    return (
-      <div className="banner banner-red" role="alert">
-        <AlertTriangle width={18} height={18} aria-hidden />
-        <span>Could not load the rein: {(reinQ.error as Error).message}</span>
-        <button className="btn small" onClick={() => reinQ.refetch()}>Try again</button>
-      </div>
-    );
+  if (reinQ.error) return <ErrorNotice error={reinQ.error} title="Couldn't load this rein." onRetry={() => reinQ.refetch()} />;
   if (!rein || rein.status === "None") {
     return (
       <div className="empty">

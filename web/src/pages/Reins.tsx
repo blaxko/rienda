@@ -6,6 +6,7 @@ import { useDecimals, useWallet } from "../hooks";
 import { fmtUsdc, shortAddr } from "../lib/format";
 import { ConnectButton, TroubleLink } from "../components/ConnectModal";
 import { StatusPill } from "../components/StatusPill";
+import { ErrorNotice } from "../components/ErrorNotice";
 
 export function Reins() {
   const w = useWallet();
@@ -38,13 +39,7 @@ export function Reins() {
       </div>
     );
   } else if (q.error) {
-    body = (
-      <div className="banner banner-red" role="alert">
-        <AlertTriangle width={18} height={18} aria-hidden />
-        <span>Could not load your reins: {(q.error as Error).message}</span>
-        <button className="btn small" onClick={() => q.refetch()}>Try again</button>
-      </div>
-    );
+    body = <ErrorNotice error={q.error} title="Couldn't load your reins." onRetry={() => q.refetch()} />;
   } else if (q.isLoading || !q.data) {
     body = (
       <div className="cards" aria-busy="true" aria-label="Loading your reins">

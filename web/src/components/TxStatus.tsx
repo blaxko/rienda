@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { CheckCircle, Loading02, XCircle, XClose } from "@untitledui/icons";
 import type { TxState } from "../lib/tx";
+import { explain } from "../lib/errors";
 import { txUrl } from "../config";
 
 /** Glass toast for every transaction phase: wallet prompt, pending, confirmed (auto-hides), failed (stays until closed). */
@@ -26,7 +27,11 @@ export function TxStatus({ state }: { state: TxState }) {
   if (state.phase === "wallet") body = <>{state.label}: confirm in your wallet.</>;
   else if (state.phase === "pending") body = <>{state.label}: waiting for confirmation.{link}</>;
   else if (state.phase === "done") { tone = "ok"; icon = <CheckCircle width={18} height={18} aria-hidden />; body = <>{state.label}: confirmed.{link}</>; }
-  else { tone = "err"; icon = <XCircle width={18} height={18} aria-hidden />; body = <>{state.label} failed: {state.message}{link}</>; }
+  else {
+    tone = "err"; icon = <XCircle width={18} height={18} aria-hidden />;
+    const ex = explain(state.message);
+    body = <><span className="err-text">{ex.kind === "rejected" ? ex.hint : `${state.label} didn't go through. ${ex.hint}`}</span>{link}{ex.detail && <details className="err-details"><summary>Details</summary><pre>{ex.detail}</pre></details>}</>;
+  }
 
   return createPortal(
     <div className={`toast glass tone-${tone}`} role={state.phase === "error" ? "alert" : "status"}>

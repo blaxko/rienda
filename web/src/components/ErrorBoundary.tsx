@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from "react";
+import { ErrorNotice } from "./ErrorNotice";
 
 /** A render crash must show a message, never a blank page. */
 export class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
@@ -11,12 +12,6 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
   }
   render() {
     if (!this.state.error) return this.props.children;
-    return (
-      <div className="banner banner-red" role="alert" >
-        <strong>Something went wrong on this page.</strong>
-        <div className="mono" style={{ margin: "6px 0", overflowWrap: "anywhere" }}>{this.state.error.message}</div>
-        <button className="btn small" onClick={() => { this.setState({ error: null }); }}>Try again</button>
-      </div>
-    );
+    return <ErrorNotice error={this.state.error} title="Something went wrong on this page." onRetry={() => this.setState({ error: null })} />;
   }
 }
