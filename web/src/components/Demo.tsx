@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { AlertTriangle, CheckCircle, XCircle } from "@untitledui/icons";
+import { AlertTriangle, CheckCircle, Lock01, XCircle } from "@untitledui/icons";
+import { useTween } from "../lib/motion";
 import { DEMO_LIMITS, DEMO_MERCHANTS, decide, initialDemo, pay, type Outcome } from "../lib/simulate";
 
 const AMOUNTS = [2, 4, 12, 60, 500];
@@ -13,6 +14,8 @@ export function Demo() {
   const [to, setTo] = useState("news");
   const [amount, setAmount] = useState(2);
 
+  const last = s.events[0];
+  const bal = useTween(s.balance), spent = useTween(s.spentToday);
   const pct = Math.min(100, (s.spentToday / DEMO_LIMITS.dailyCap) * 100);
   const meterClass = pct >= 100 ? "full" : pct >= 80 ? "hot" : "";
 
@@ -67,6 +70,15 @@ export function Demo() {
           <p className="muted" style={{ marginTop: 6 }}>Simulated with the same rules as the contract. Nothing is sent to a chain.</p>
         </div>
 
+        <div className={`lane ${s.frozen ? "frozen" : ""} ${last ? last.outcome : ""}`} aria-hidden="true">
+          <span className="node">Agent</span>
+          <span className="rail">
+            {last && <i className={`dot ${last.outcome}`} key={last.id} />}
+            <span className="gate" key={`g${last?.id ?? 0}`}>{s.frozen ? <Lock01 width={14} height={14} /> : null}</span>
+          </span>
+          <span className="node">{last && last.outcome === "Paid" ? last.to : "Merchant"}</span>
+        </div>
+
         {s.frozen && (
           <div className="banner-frozen" role="alert">
             <strong>Frozen</strong>
@@ -75,10 +87,10 @@ export function Demo() {
         )}
 
         <div className="numbers">
-          <div className="num"><div className="k">Balance</div><div className="v">{usd(s.balance)}</div></div>
+          <div className="num"><div className="k">Balance</div><div className="v">{usd(bal)}</div></div>
           <div className="num">
             <div className="k">Spent today</div>
-            <div className="v">{usd(s.spentToday)} <small>/ ${DEMO_LIMITS.dailyCap}</small></div>
+            <div className="v">{usd(spent)} <small>/ ${DEMO_LIMITS.dailyCap}</small></div>
             <div className={`meter ${meterClass}`}><div style={{ width: `${pct}%` }} /></div>
           </div>
           <div className="num"><div className="k">Strikes</div><div className="v">{s.strikes} <small>of {DEMO_LIMITS.maxStrikes}</small></div></div>

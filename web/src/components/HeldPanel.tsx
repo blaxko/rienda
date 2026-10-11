@@ -50,7 +50,7 @@ export function HeldPanel({ reinId, view, decimals, balance, canAct, onDone, acc
   if (pending.length === 0 && tx.state.phase === "idle") return null;
 
   return (
-    <div className="card">
+    <div className="card held">
       <h2>Waiting for you {pending.length > 0 && <span className="status status-Held">{pending.length}</span>}</h2>
       {pending.map((r) => {
         const held = view.held.get(r.id);

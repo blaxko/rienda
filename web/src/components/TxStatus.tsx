@@ -1,21 +1,41 @@
-import { CheckCircle, Loading02, XCircle } from "@untitledui/icons";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { CheckCircle, Loading02, XCircle, XClose } from "@untitledui/icons";
 import type { TxState } from "../lib/tx";
 import { txUrl } from "../config";
 
-/** Every transaction phase is visible: waiting for the wallet, pending onchain, confirmed, failed. */
+/** Glass toast for every transaction phase: wallet prompt, pending, confirmed (auto-hides), failed (stays until closed). */
 export function TxStatus({ state }: { state: TxState }) {
-  if (state.phase === "idle") return null;
+  const [dismissed, setDismissed] = useState<string>("");
+  const key = state.phase === "idle" ? "" : `${state.phase}:${"hash" in state ? state.hash ?? "" : ""}:${state.label}`;
+  useEffect(() => {
+    if (state.phase !== "done") return;
+    const t = setTimeout(() => setDismissed(key), 7000);
+    return () => clearTimeout(t);
+  }, [key, state.phase]);
+  if (state.phase === "idle" || dismissed === key) return null;
+
   const link = "hash" in state && state.hash ? (
     <>
       {" "}
       <a href={txUrl(state.hash)} target="_blank" rel="noreferrer">View transaction →</a>
     </>
   ) : null;
-  if (state.phase === "wallet")
-    return <p className="tx tx-wait" role="status"><Loading02 className="spin" width={16} height={16} aria-hidden /><span>{state.label}: confirm in your wallet.</span></p>;
-  if (state.phase === "pending")
-    return <p className="tx tx-wait" role="status"><Loading02 className="spin" width={16} height={16} aria-hidden /><span>{state.label}: waiting for confirmation.{link}</span></p>;
-  if (state.phase === "done")
-    return <p className="tx tx-ok" role="status"><CheckCircle width={16} height={16} aria-hidden /><span>{state.label}: confirmed.{link}</span></p>;
-  return <p className="tx tx-err" role="alert"><XCircle width={16} height={16} aria-hidden /><span>{state.label} failed: {state.message}{link}</span></p>;
+
+  let tone = "wait", icon = <Loading02 className="spin" width={18} height={18} aria-hidden />, body: React.ReactNode;
+  if (state.phase === "wallet") body = <>{state.label}: confirm in your wallet.</>;
+  else if (state.phase === "pending") body = <>{state.label}: waiting for confirmation.{link}</>;
+  else if (state.phase === "done") { tone = "ok"; icon = <CheckCircle width={18} height={18} aria-hidden />; body = <>{state.label}: confirmed.{link}</>; }
+  else { tone = "err"; icon = <XCircle width={18} height={18} aria-hidden />; body = <>{state.label} failed: {state.message}{link}</>; }
+
+  return createPortal(
+    <div className={`toast glass tone-${tone}`} role={state.phase === "error" ? "alert" : "status"}>
+      {icon}
+      <span>{body}</span>
+      {(state.phase === "done" || state.phase === "error") && (
+        <button className="icon-btn" aria-label="Dismiss" onClick={() => setDismissed(key)}><XClose width={16} height={16} aria-hidden /></button>
+      )}
+    </div>,
+    document.body,
+  );
 }

@@ -1,6 +1,7 @@
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Header, NetworkGuard } from "./components/Header";
 import { Link, usePath } from "./router";
+import { Shapes } from "./components/Shapes";
 import { Landing } from "./pages/Landing";
 import { Reins } from "./pages/Reins";
 import { NewRein } from "./pages/NewRein";
@@ -26,6 +27,7 @@ export function App() {
 
   return (
     <>
+      <div className="app-bg"><Shapes /></div>
       <Header />
       <NetworkGuard />
       <main className="main">

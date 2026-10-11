@@ -176,7 +176,7 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
       <div className="card">
         <h2>Agent</h2>
         <div className="row">
-          <a className="mono" style={{ overflowWrap: "anywhere" }} href={addressUrl(rein.agent)} target="_blank" rel="noreferrer">{rein.agent}</a>
+          <a className="mono agent-link" href={addressUrl(rein.agent)} target="_blank" rel="noreferrer">{rein.agent}</a>
           <span>
             {monQ.data ? `${Number(formatUnits(monQ.data.mon, 18)).toFixed(3)} MON` : "…"}
             {paymentsLeft !== undefined && <span className="muted"> · enough gas for ~{paymentsLeft.toString()} payments</span>}

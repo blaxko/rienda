@@ -169,7 +169,7 @@ export function NewRein() {
       <div className="card">
         <h2>Allowed merchants</h2>
         {merchants.map((m, i) => (
-          <div className="grid2" key={i} style={{ gridTemplateColumns: "minmax(120px,1fr) minmax(200px,2fr) auto", alignItems: "end", marginBottom: 12 }}>
+          <div className="merchant-row" key={i}>
             <div><label htmlFor={`ml-${i}`}>Label</label><input id={`ml-${i}`} value={m.label} onChange={(e) => setMerchant(i, { label: e.target.value })} placeholder="News API" /></div>
             <div><label htmlFor={`ma-${i}`}>Address</label><input id={`ma-${i}`} value={m.address} onChange={(e) => setMerchant(i, { address: e.target.value.trim() })} placeholder="0x…" spellCheck={false} /></div>
             <button className="btn ghost" onClick={() => setMerchants((ms) => ms.filter((_, j) => j !== i))} aria-label={`Remove merchant ${i + 1}`}>Remove</button>

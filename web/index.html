@@ -8,6 +8,21 @@
     <meta name="theme-color" content="#ffffff" />
   </head>
   <body>
+    <script>
+      (function () {
+        var d = document.documentElement;
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches) d.classList.add("motion");
+        var b = navigator.userAgentData && navigator.userAgentData.brands;
+        if (b && b.some(function (x) { return x.brand === "Chromium"; })) d.classList.add("liquid");
+      })();
+    </script>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <filter id="liquid" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.01" numOctaves="2" seed="4" result="n" />
+        <feGaussianBlur in="n" stdDeviation="3" result="nb" />
+        <feDisplacementMap in="SourceGraphic" in2="nb" scale="12" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
