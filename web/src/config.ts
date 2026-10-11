@@ -1,7 +1,7 @@
-import { createPublicClient } from "viem";
+import { createPublicClient, http } from "viem";
 import { createConfig } from "wagmi";
 import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
-import { addresses, chainFor, createRienda, explorerUrl, transportFor, type Network } from "@rienda/sdk";
+import { LOGS_RPC, PUBLIC_LOGS_RANGE, addresses, chainFor, createRienda, explorerUrl, transportFor, type Network } from "@rienda/sdk";
 
 const env = import.meta.env;
 
@@ -44,6 +44,37 @@ export const wagmiConfig = createConfig({
 
 /** Read-only client, independent of the wallet (works before connecting and on the wrong network). */
 export const publicClient = createPublicClient({ chain, transport });
+
+/** Where event history is read from, fastest first. `max` is how many blocks one getLogs call may span (shrinks if the node says no). */
+/** Caps how many requests one source gets at once, however many windows are being fetched (public RPCs 429 above ~6-8 in flight). */
+export class Gate {
+  private n = 0;
+  private q: (() => void)[] = [];
+  private nextStart = 0;
+  /** `gapMs`: minimum time between request starts (a rate cap: thirdweb's public RPC 429s above ~7 requests/s). */
+  constructor(readonly cap: number, readonly gapMs = 0) {}
+  async run<T>(f: () => Promise<T>): Promise<T> {
+    if (this.n >= this.cap) await new Promise<void>((r) => this.q.push(r));
+    this.n++;
+    if (this.gapMs > 0) {
+      const start = Math.max(Date.now(), this.nextStart);
+      this.nextStart = start + this.gapMs;
+      if (start > Date.now()) await new Promise((r) => setTimeout(r, start - Date.now()));
+    }
+    try {
+      return await f();
+    } finally {
+      this.n--;
+      this.q.shift()?.();
+    }
+  }
+}
+export type LogSource = { name: string; client: typeof publicClient; max: bigint; fails: number; coolUntil: number; gate: Gate };
+export const logSources: LogSource[] = [
+  // VITE_LOGS_RPC=none turns the extra history RPCs off (e.g. against a local chain); the public RPC is always the last source
+  ...(env.VITE_LOGS_RPC === "none" ? [] : LOGS_RPC[NETWORK]).map((s) => ({ name: new URL(s.url).host, client: createPublicClient({ chain, transport: http(s.url, { retryCount: 0, timeout: 8_000 }) }), max: BigInt(s.maxRange), fails: 0, coolUntil: 0, gate: new Gate(4, 170) })),
+  { name: "public", client: publicClient, max: BigInt(PUBLIC_LOGS_RANGE), fails: 0, coolUntil: 0, gate: new Gate(6, 90) },
+];
 
 export const rienda = RIENDA ? createRienda({ address: RIENDA, publicClient }) : null;
 

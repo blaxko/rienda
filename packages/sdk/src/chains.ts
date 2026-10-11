@@ -38,6 +38,19 @@ export function explorerUrl(network: Network, kind: "tx" | "address", value: str
   return `${chainFor(network).blockExplorers!.default.url}/${kind}/${value}`;
 }
 
+/**
+ * Read-only RPCs that accept bigger eth_getLogs ranges than the public Monad RPC (100 blocks), used only to load
+ * event history faster. Measured Oct 11: thirdweb's testnet RPC answers 1,000-block ranges and rejects 2,000.
+ * Anything wrong with them falls back to the public RPC, so they never block the app.
+ */
+export const LOGS_RPC: Record<Network, readonly { url: string; maxRange: number }[]> = {
+  mainnet: [],
+  testnet: [{ url: "https://10143.rpc.thirdweb.com", maxRange: 1000 }],
+};
+
+/** The public Monad RPCs reject eth_getLogs ranges above this many blocks (error -32614). */
+export const PUBLIC_LOGS_RANGE = 100;
+
 type Env = Record<string, string | undefined>;
 
 /**

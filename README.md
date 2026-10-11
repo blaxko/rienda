@@ -178,7 +178,7 @@ npm run dev -w web          # open http://localhost:5173 and connect MetaMask or
 npm run build -w web        # static build in web/dist
 ```
 
-Optional `web/.env` (see `web/.env.example`): `VITE_NETWORK`, `VITE_RPC_URL_TESTNET`. Anything in it is public in the browser bundle. The dashboard can create a rein itself at `/new` (approve + create), show the live feed, approve or deny held payments, freeze, deposit and withdraw.
+Optional `web/.env` (see `web/.env.example`): `VITE_NETWORK`, `VITE_RPC_URL_TESTNET`, `VITE_WALLETCONNECT_PROJECT_ID` (shows the WalletConnect option), `VITE_LOGS_RPC=none` (skip the faster third-party RPC the activity history uses; the public RPC is always the fallback). Anything in it is public in the browser bundle. The dashboard can create a rein itself at `/new` (approve + create), show the live feed, approve or deny held payments, freeze, deposit and withdraw.
 
 ### Deploy the dashboard on Railway
 
