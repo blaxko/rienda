@@ -3,6 +3,8 @@ import { chainFor } from "@rienda/sdk";
 import { chainAddParams, classifyConnectError, metamaskDeepLink, walletOptions, withTimeout, ConnectTimeoutError } from "../src/lib/wallet";
 import { pay, initialDemo, decide } from "../src/lib/simulate";
 import { cleanAddress, parseAddress } from "../src/lib/address";
+import { explain, redact } from "../src/lib/errors";
+import { FALLBACK_RPC, PUBLIC_RPC, transportFor } from "@rienda/sdk";
 
 // chain-add params: Monad Testnet 10143, our RPC, MON, MonadVision
 const p = chainAddParams(chainFor("testnet"));
@@ -55,5 +57,23 @@ assert.equal(cleanAddress(` \u200B${AGENT}\n`), AGENT);
 for (const v of ["", "0x", AGENT.slice(0, -1), AGENT + "0", "0x" + "g".repeat(40), "0x" + "0".repeat(40), "83e0171F8f03FCcc280205A9c6116e1dF26761B3"]) {
   assert.equal(parseAddress(v), null, JSON.stringify(v));
 }
+
+// error text: short human hint + redacted detail
+assert.equal(explain(new Error("HTTP request failed.\nURL: https://testnet-rpc.monad.xyz")).kind, "network");
+assert.equal(explain({ code: 4001, message: "User rejected the request." }).kind, "rejected");
+assert.equal(explain("Rejected in your wallet.").kind, "rejected");
+assert.equal(explain(new Error("insufficient funds for gas")).kind, "funds");
+assert.equal(explain(new Error("execution reverted: ReinFrozen")).kind, "revert");
+assert.equal(explain(new Error("something odd")).hint, "Try again in a moment.");
+assert.ok(!/abcdef0123456789abcdef0123456789/.test(redact("projectId=abcdef0123456789abcdef0123456789 and /v2/AbCdEfGhIjKlMnOpQrStUv")), "keys are hidden");
+assert.ok(!/AbCdEfGhIjKlMnOpQrStUv/.test(redact("https://x.g.alchemy.com/v2/AbCdEfGhIjKlMnOpQrStUv")));
+
+// reads: the public RPC first, then the listed fallbacks; the owner's own RPC (if set) goes before them; no duplicates
+assert.equal(FALLBACK_RPC.testnet.length >= 2, true);
+const urls = (t: unknown) => ((t as (a: object) => { value?: { transports?: { value?: { url?: string } }[] } })({ chain: undefined })).value?.transports?.map((x) => x.value?.url);
+const t0 = transportFor("testnet", {});
+assert.deepEqual(urls(t0), [PUBLIC_RPC.testnet, ...FALLBACK_RPC.testnet]);
+assert.deepEqual(urls(transportFor("testnet", { RPC_URL_TESTNET: "https://own.example/rpc" }))?.slice(0, 2), ["https://own.example/rpc", PUBLIC_RPC.testnet]);
+assert.deepEqual(urls(transportFor("testnet", { RPC_URL_TESTNET: PUBLIC_RPC.testnet })), [PUBLIC_RPC.testnet, ...FALLBACK_RPC.testnet]);
 
 console.log("web checks passed");

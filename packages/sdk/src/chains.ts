@@ -39,6 +39,17 @@ export function explorerUrl(network: Network, kind: "tx" | "address", value: str
 }
 
 /**
+ * Second and third RPCs for reads, tried in order when the public one fails (rate limit, outage, a carrier or network
+ * that blocks it). All three answer browser requests from any origin (CORS checked Oct 11). One public endpoint with no
+ * fallback was the only read path before, so a single 429 or timeout took the whole dashboard down.
+ * Mainnet has none listed yet: add only endpoints that have been checked.
+ */
+export const FALLBACK_RPC: Record<Network, readonly string[]> = {
+  mainnet: [],
+  testnet: ["https://rpc-testnet.monadinfra.com", "https://rpc.ankr.com/monad_testnet", "https://10143.rpc.thirdweb.com"],
+};
+
+/**
  * Read-only RPCs that accept bigger eth_getLogs ranges than the public Monad RPC (100 blocks), used only to load
  * event history faster. Measured Oct 11: thirdweb's testnet RPC answers 1,000-block ranges and rejects 2,000.
  * Anything wrong with them falls back to the public RPC, so they never block the app.
@@ -62,7 +73,8 @@ export function transportFor(network: Network, env: Env = {}): Transport {
   const specific = network === "mainnet" ? env.RPC_URL_MAINNET : env.RPC_URL_TESTNET;
   const primary = specific || env.RPC_URL;
   const publicUrl = PUBLIC_RPC[network];
-  const urls = primary && primary !== publicUrl ? [primary, publicUrl] : [publicUrl];
+  // order: the owner's own RPC (if set), the public Monad RPC, then the listed fallbacks (no duplicates)
+  const urls = [...new Set([...(primary ? [primary] : []), publicUrl, ...FALLBACK_RPC[network]])];
   const transports = urls.map((u) => http(u, { retryCount: 1, timeout: 10_000 }));
   return transports.length === 1 ? transports[0]! : fallback(transports, { rank: false });
 }

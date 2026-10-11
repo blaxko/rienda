@@ -16,6 +16,7 @@
     "@fontsource/instrument-serif": "5.3.0",
     "@reown/appkit": "1.8.24",
     "@reown/appkit-adapter-wagmi": "1.8.24",
+    "@reown/appkit-controllers": "1.8.24",
     "@rienda/sdk": "*",
     "@tanstack/react-query": "^5.104.1",
     "@types/react": "^19.3.0",
