@@ -8,7 +8,7 @@ import { useDecimals, useWallet } from "../hooks";
 import { useTx } from "../lib/tx";
 import { fmtUsdc, parseUsdc } from "../lib/format";
 import { TxStatus } from "../components/TxStatus";
-import { navigate } from "../router";
+import { Link, navigate } from "../router";
 
 type MerchantRow = { address: string; label: string };
 
@@ -137,10 +137,11 @@ export function NewRein() {
 
   return (
     <section>
-      <h1>New rein</h1>
-      <p className="muted">
-        Your agent can pay only the merchants below, within these limits. Funds stay in the Rienda contract until a payment is allowed.
-      </p>
+      <Link to="/app" className="back">My reins</Link>
+      <div className="page-head">
+        <h1>New rein</h1>
+        <p className="lede">Your agent can pay only the merchants below, within these limits. Funds stay in the Rienda contract until a payment is allowed.</p>
+      </div>
 
       <div className="card">
         <h2>Agent</h2>
@@ -159,7 +160,7 @@ export function NewRein() {
           <div className="field"><label htmlFor="ms">Max strikes</label><input id="ms" inputMode="numeric" value={strikes} onChange={(e) => setStrikes(e.target.value)} /></div>
           <div className="field"><label htmlFor="ex">Expiry (days)</label><input id="ex" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} /></div>
         </div>
-        <p className="muted">
+        <p className="card-note">
           Above the per-payment cap (or over the daily cap) a payment waits for your approval. Above the hold ceiling, or to anyone not
           listed, it's blocked and counts as a strike.
         </p>
@@ -168,13 +169,13 @@ export function NewRein() {
       <div className="card">
         <h2>Allowed merchants</h2>
         {merchants.map((m, i) => (
-          <div className="grid2" key={i} style={{ gridTemplateColumns: "1fr 2fr auto", alignItems: "end", marginBottom: 8 }}>
-            <div><label>Label</label><input value={m.label} onChange={(e) => setMerchant(i, { label: e.target.value })} placeholder="News API" /></div>
-            <div><label>Address</label><input value={m.address} onChange={(e) => setMerchant(i, { address: e.target.value.trim() })} placeholder="0x…" spellCheck={false} /></div>
-            <button className="ghost" onClick={() => setMerchants((ms) => ms.filter((_, j) => j !== i))} aria-label={`Remove merchant ${i + 1}`}>Remove</button>
+          <div className="grid2" key={i} style={{ gridTemplateColumns: "minmax(120px,1fr) minmax(200px,2fr) auto", alignItems: "end", marginBottom: 12 }}>
+            <div><label htmlFor={`ml-${i}`}>Label</label><input id={`ml-${i}`} value={m.label} onChange={(e) => setMerchant(i, { label: e.target.value })} placeholder="News API" /></div>
+            <div><label htmlFor={`ma-${i}`}>Address</label><input id={`ma-${i}`} value={m.address} onChange={(e) => setMerchant(i, { address: e.target.value.trim() })} placeholder="0x…" spellCheck={false} /></div>
+            <button className="btn ghost" onClick={() => setMerchants((ms) => ms.filter((_, j) => j !== i))} aria-label={`Remove merchant ${i + 1}`}>Remove</button>
           </div>
         ))}
-        <button className="ghost" onClick={() => setMerchants((ms) => [...ms, { address: "", label: "" }])}>Add merchant</button>
+        <button className="btn ghost" onClick={() => setMerchants((ms) => [...ms, { address: "", label: "" }])}>Add merchant</button>
       </div>
 
       <div className="card">
@@ -183,32 +184,31 @@ export function NewRein() {
           <label htmlFor="dep">Deposit ($)</label>
           <input id="dep" inputMode="decimal" value={deposit} onChange={(e) => setDeposit(e.target.value)} />
         </div>
-        <p className="muted">
+        <p className="card-note">
           Your USDC balance: {balance.data !== undefined ? `$${fmtUsdc(balance.data, decimals)}` : w.isConnected ? "…" : "connect a wallet"}
         </p>
       </div>
 
       {errors.length > 0 && w.isConnected && (
-        <ul className="tx tx-err" style={{ paddingLeft: 18 }}>{errors.map((e) => <li key={e}>{e}</li>)}</ul>
+        <ul className="errors" role="alert">{errors.map((e) => <li key={e}>{e}</li>)}</ul>
       )}
 
       <div className="card">
         <h2>Create</h2>
-        <ol style={{ paddingLeft: 18, margin: "0 0 12px" }}>
-          <li>
-            Approve USDC{" "}
-            <span className="muted">
-              {skippedApprove ? "(skipped, allowance is enough)" : stage === "approve" ? "(in progress)" : stage === "create" || stage === "done" ? "(done)" : ""}
-            </span>
+        <ol className="steps-list">
+          <li className={stage === "approve" ? "on" : stage === "create" || stage === "done" || skippedApprove ? "done" : ""}>
+            <span className="dot">{stage === "create" || stage === "done" || skippedApprove ? "✓" : "1"}</span>
+            Approve USDC{skippedApprove ? " (not needed)" : ""}
           </li>
-          <li>
-            Create rein <span className="muted">{stage === "create" ? "(in progress)" : stage === "done" ? "(done)" : ""}</span>
+          <li className={stage === "create" ? "on" : stage === "done" ? "done" : ""}>
+            <span className="dot">{stage === "done" ? "✓" : "2"}</span>
+            Create rein
           </li>
         </ol>
-        <button onClick={submit} disabled={!canSubmit}>
+        <button className="btn" onClick={submit} disabled={!canSubmit}>
           {busy ? "Working…" : "Approve & create rein"}
         </button>
-        {!w.canAct && <p className="muted">{w.isConnected ? "Switch to Monad to continue." : "Connect your wallet to continue."}</p>}
+        {!w.canAct && <p className="card-note">{w.isConnected ? "Switch to Monad to continue." : "Connect your wallet to continue."}</p>}
         <TxStatus state={tx.state} />
       </div>
     </section>

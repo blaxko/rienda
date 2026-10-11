@@ -10,6 +10,7 @@ import { fmtDateTime, fmtUsdc, parseUsdc, shortAddr } from "../lib/format";
 import { TxStatus } from "../components/TxStatus";
 import { Feed } from "../components/Feed";
 import { HeldPanel } from "../components/HeldPanel";
+import { AlertTriangle, SlashCircle01 } from "@untitledui/icons";
 import { Link } from "../router";
 
 const GAS_WARN_PAYMENTS = 20n; // warn when the agent can't cover 20 pay calls
@@ -44,15 +45,33 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
   const [mAddr, setMAddr] = useState("");
   const [mLabel, setMLabel] = useState("");
 
-  if (!rienda) return <p>Rienda is not deployed on {chain.name}.</p>;
-  if (reinQ.isLoading) return <p className="muted">Loading rein #{reinId.toString()}…</p>;
-  if (reinQ.error) return <p className="tx tx-err">Could not load the rein: {(reinQ.error as Error).message}</p>;
+  if (!rienda) return <div className="empty"><h2>Not deployed yet</h2><p>Rienda has no contract on {chain.name} yet.</p></div>;
+  if (reinQ.isLoading)
+    return (
+      <section aria-busy="true" aria-label={`Loading rein #${reinId}`}>
+        <div className="skeleton" style={{ height: 44, width: 260, marginBottom: 40 }} />
+        <div className="stats">
+          {[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className="skeleton" style={{ height: 84 }} />)}
+        </div>
+        <div className="skeleton" style={{ height: 200 }} />
+      </section>
+    );
+  if (reinQ.error)
+    return (
+      <div className="banner banner-red" role="alert">
+        <AlertTriangle width={18} height={18} aria-hidden />
+        <span>Could not load the rein: {(reinQ.error as Error).message}</span>
+        <button className="btn small" onClick={() => reinQ.refetch()}>Try again</button>
+      </div>
+    );
   if (!rein || rein.status === "None") {
     return (
-      <section>
-        <h1>Rein #{reinId.toString()}</h1>
-        <p className="muted">This rein doesn't exist. <Link to="/">Back to my reins</Link></p>
-      </section>
+      <div className="empty">
+        <div className="icon"><SlashCircle01 width={22} height={22} aria-hidden /></div>
+        <h2>Rein #{reinId.toString()} doesn't exist</h2>
+        <p>Check the number in the address, or go back to your list.</p>
+        <Link to="/app" className="btn">My reins</Link>
+      </div>
     );
   }
 
@@ -116,14 +135,15 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
 
   return (
     <section>
-      <div className="row" style={{ marginBottom: 12 }}>
-        <h1 style={{ margin: 0 }}>Rein #{reinId.toString()}</h1>
+      <Link to="/app" className="back">My reins</Link>
+      <div className="page-head">
+        <h1>Rein #{reinId.toString()}</h1>
         <span className={`status status-${rein.status}`}>{rein.status}</span>
       </div>
 
       {rein.status === "Frozen" && (
         <div className="frozen-banner" role="alert">
-          FROZEN
+          <strong>Frozen</strong>
           <small>
             {autoFrozen
               ? `Rienda froze this agent after ${rein.maxStrikes} blocked attempts. Your funds didn't move.`
@@ -131,21 +151,22 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
           </small>
         </div>
       )}
-      {rein.status === "Closed" && <div className="banner banner-amber" style={{ marginBottom: 16 }}>This rein is closed.</div>}
-      {expired && rein.status !== "Closed" && <div className="banner banner-amber" style={{ marginBottom: 16 }}>This rein has expired: the agent can't pay.</div>}
-      {w.isConnected && !isOwner && <div className="banner banner-amber" style={{ marginBottom: 16 }}>You're viewing someone else's rein. Controls are disabled.</div>}
+      {rein.status === "Closed" && <div className="banner banner-grey"><SlashCircle01 width={18} height={18} aria-hidden />This rein is closed. The balance was withdrawn and the agent can no longer pay.</div>}
+      {expired && rein.status !== "Closed" && <div className="banner banner-amber"><AlertTriangle width={18} height={18} aria-hidden />This rein has expired. The agent can't pay until you create a new one.</div>}
+      {w.isConnected && !isOwner && <div className="banner banner-grey">You're viewing someone else's rein. Controls are turned off.</div>}
 
       <div className="stats">
         <div className="stat"><div className="k">Balance</div><div className="v">${fmtUsdc(rein.balance, decimals)}</div></div>
         <div className="stat">
           <div className="k">Spent today</div>
-          <div className="v">${fmtUsdc(spentToday, decimals)} <span className="muted" style={{ fontSize: ".8rem", fontWeight: 400 }}>/ ${fmtUsdc(rein.dailyCap, decimals)}</span></div>
-          <div className={`meter ${spentPct >= 80 ? "hot" : ""}`}><div style={{ width: `${spentPct}%` }} /></div>
+          <div className="v">${fmtUsdc(spentToday, decimals)} <span className="of">/ ${fmtUsdc(rein.dailyCap, decimals)}</span></div>
+          <div className={`meter ${spentPct >= 100 ? "full" : spentPct >= 80 ? "hot" : ""}`} role="progressbar" aria-label="Spent today" aria-valuemin={0} aria-valuemax={100} aria-valuenow={spentPct}><div style={{ width: `${spentPct}%` }} /></div>
+          {spentPct >= 100 && <div className="hint warn">Daily cap reached. New payments wait for your approval until 00:00 UTC.</div>}
         </div>
-        <div className="stat"><div className="k">Strikes</div><div className="v">{rein.strikes} of {rein.maxStrikes}</div></div>
+        <div className="stat"><div className="k">Strikes</div><div className="v">{rein.strikes} <span className="of">of {rein.maxStrikes}</span></div>{rein.strikes >= rein.maxStrikes ? <div className="hint bad">Limit reached. The agent is frozen.</div> : rein.strikes > 0 ? <div className="hint warn">{rein.maxStrikes - rein.strikes} more and it freezes.</div> : null}</div>
         <div className="stat"><div className="k">Per payment</div><div className="v">${fmtUsdc(rein.perPayCap, decimals)}</div></div>
         <div className="stat"><div className="k">Hold ceiling</div><div className="v">${fmtUsdc(rein.holdCeiling, decimals)}</div></div>
-        <div className="stat"><div className="k">Expires</div><div className="v" style={{ fontSize: ".95rem" }}>{fmtDateTime(rein.expiry)}</div></div>
+        <div className="stat"><div className="k">Expires</div><div className="v sm">{fmtDateTime(rein.expiry)}</div></div>
       </div>
 
       {isOwner && (
@@ -155,15 +176,16 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
       <div className="card">
         <h2>Agent</h2>
         <div className="row">
-          <a className="mono" href={addressUrl(rein.agent)} target="_blank" rel="noreferrer">{rein.agent}</a>
+          <a className="mono" style={{ overflowWrap: "anywhere" }} href={addressUrl(rein.agent)} target="_blank" rel="noreferrer">{rein.agent}</a>
           <span>
             {monQ.data ? `${Number(formatUnits(monQ.data.mon, 18)).toFixed(3)} MON` : "…"}
             {paymentsLeft !== undefined && <span className="muted"> · enough gas for ~{paymentsLeft.toString()} payments</span>}
           </span>
         </div>
         {lowGas && (
-          <p className="tx tx-err">
-            Low gas: the agent needs MON to pay. Monad charges the full gas limit per call, so send it a little MON (below {GAS_WARN_PAYMENTS.toString()} payments' worth).
+          <p className="tx tx-err" role="alert">
+            <AlertTriangle width={16} height={16} aria-hidden />
+            <span>Low gas. The agent needs MON to pay, and Monad charges the full gas limit per call. Send it a little MON: it has less than {GAS_WARN_PAYMENTS.toString()} payments' worth.</span>
           </p>
         )}
       </div>
@@ -171,9 +193,9 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
       <div className="card">
         <h2>Allowed merchants</h2>
         {feed.loading && feed.view.merchants.length === 0 ? (
-          <p className="muted">Loading…</p>
+          <div className="skeleton" style={{ height: 48 }} aria-busy="true" />
         ) : feed.view.merchants.length === 0 ? (
-          <p className="muted">No merchants found.</p>
+          <p className="card-note">No merchants found.</p>
         ) : (
           <table className="table">
             <tbody>
@@ -184,7 +206,7 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
                   <td><a className="mono" href={addressUrl(m.address)} target="_blank" rel="noreferrer">{shortAddr(m.address)}</a></td>
                   <td style={{ textAlign: "right" }}>
                     {isOwner && rein.status !== "Closed" && m.allowed && (
-                      <button className="ghost small" disabled={!canOwnerAct} onClick={() => write("Remove merchant", { functionName: "setMerchant", args: [reinId, m.address, false, m.label] })}>
+                      <button className="btn ghost small" disabled={!canOwnerAct} onClick={() => write("Remove merchant", { functionName: "setMerchant", args: [reinId, m.address, false, m.label] })}>
                         Remove
                       </button>
                     )}
@@ -196,9 +218,9 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
         )}
         {isOwner && rein.status !== "Closed" && (
           <div className="actions" style={{ marginTop: 12 }}>
-            <div><label>Label</label><input value={mLabel} onChange={(e) => setMLabel(e.target.value)} placeholder="Coffee" /></div>
-            <div style={{ flex: 1, minWidth: 200 }}><label>Address</label><input value={mAddr} onChange={(e) => setMAddr(e.target.value.trim())} placeholder="0x…" spellCheck={false} /></div>
-            <button className="ghost" disabled={!canOwnerAct || !isAddress(mAddr) || !mLabel.trim()} onClick={addMerchant}>Add merchant</button>
+            <div><label htmlFor="m-label">Label</label><input id="m-label" value={mLabel} onChange={(e) => setMLabel(e.target.value)} placeholder="Coffee" /></div>
+            <div style={{ flex: 1, minWidth: 200 }}><label htmlFor="m-addr">Address</label><input id="m-addr" value={mAddr} onChange={(e) => setMAddr(e.target.value.trim())} placeholder="0x…" spellCheck={false} /></div>
+            <button className="btn ghost" disabled={!canOwnerAct || !isAddress(mAddr) || !mLabel.trim()} onClick={addMerchant}>Add merchant</button>
           </div>
         )}
       </div>
@@ -208,28 +230,28 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
           <h2>Controls</h2>
           <div className="actions" style={{ marginBottom: 12 }}>
             {rein.status === "Active" && (
-              <button className="danger" disabled={!canOwnerAct} onClick={() => write("Freeze", { functionName: "freeze", args: [reinId] })}>Freeze agent</button>
+              <button className="btn danger" disabled={!canOwnerAct} onClick={() => write("Freeze", { functionName: "freeze", args: [reinId] })}>Freeze agent</button>
             )}
             {rein.status === "Frozen" && (
-              <button className="good" disabled={!canOwnerAct} onClick={() => write("Unfreeze", { functionName: "unfreeze", args: [reinId] })}>Unfreeze agent</button>
+              <button className="btn good" disabled={!canOwnerAct} onClick={() => write("Unfreeze", { functionName: "unfreeze", args: [reinId] })}>Unfreeze agent</button>
             )}
           </div>
           {rein.status !== "Closed" && (
             <div className="grid2">
               <div className="actions">
-                <div style={{ flex: 1 }}><label>Deposit ($)</label><input inputMode="decimal" value={depositAmt} onChange={(e) => setDepositAmt(e.target.value)} placeholder="10" /></div>
-                <button disabled={!canOwnerAct || depositU === null} onClick={deposit}>Deposit</button>
+                <div style={{ flex: 1 }}><label htmlFor="dep-amt">Deposit ($)</label><input id="dep-amt" inputMode="decimal" value={depositAmt} onChange={(e) => setDepositAmt(e.target.value)} placeholder="10" /></div>
+                <button className="btn" disabled={!canOwnerAct || depositU === null} onClick={deposit}>Deposit</button>
               </div>
               <div className="actions">
-                <div style={{ flex: 1 }}><label>Withdraw ($)</label><input inputMode="decimal" value={withdrawAmt} onChange={(e) => setWithdrawAmt(e.target.value)} placeholder="10" /></div>
-                <button className="ghost" disabled={!canOwnerAct || withdrawU === null || withdrawU > rein.balance} onClick={withdraw}>Withdraw</button>
+                <div style={{ flex: 1 }}><label htmlFor="wd-amt">Withdraw ($)</label><input id="wd-amt" inputMode="decimal" value={withdrawAmt} onChange={(e) => setWithdrawAmt(e.target.value)} placeholder="10" /></div>
+                <button className="btn ghost" disabled={!canOwnerAct || withdrawU === null || withdrawU > rein.balance} onClick={withdraw}>Withdraw</button>
               </div>
             </div>
           )}
           {rein.status !== "Closed" && (
             <p style={{ marginBottom: 0 }}>
               <button
-                className="ghost small"
+                className="btn ghost small"
                 disabled={!canOwnerAct}
                 onClick={() => window.confirm("Withdraw everything and close this rein permanently?") && write("Close rein", { functionName: "close", args: [reinId] })}
               >

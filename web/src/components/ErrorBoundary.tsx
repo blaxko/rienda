@@ -12,10 +12,10 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
   render() {
     if (!this.state.error) return this.props.children;
     return (
-      <div className="banner banner-red" role="alert" style={{ margin: 16, borderRadius: 10 }}>
+      <div className="banner banner-red" role="alert" >
         <strong>Something went wrong on this page.</strong>
         <div className="mono" style={{ margin: "6px 0", overflowWrap: "anywhere" }}>{this.state.error.message}</div>
-        <button onClick={() => { this.setState({ error: null }); }}>Try again</button>
+        <button className="btn small" onClick={() => { this.setState({ error: null }); }}>Try again</button>
       </div>
     );
   }

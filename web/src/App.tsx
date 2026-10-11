@@ -1,18 +1,28 @@
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Header, NetworkGuard } from "./components/Header";
-import { usePath } from "./router";
+import { Link, usePath } from "./router";
+import { Landing } from "./pages/Landing";
 import { Reins } from "./pages/Reins";
 import { NewRein } from "./pages/NewRein";
 import { ReinPage } from "./pages/Rein";
 
 export function App() {
   const path = usePath();
+  if (path === "/" || path === "") return <Landing />;
+
   const m = /^\/rein\/(\d+)\/?$/.exec(path);
   let page;
-  if (path === "/" || path === "") page = <Reins />;
+  if (path === "/app" || path === "/app/") page = <Reins />;
   else if (path === "/new") page = <NewRein />;
   else if (m) page = <ReinPage reinId={BigInt(m[1]!)} />;
-  else page = <p>Page not found.</p>;
+  else
+    page = (
+      <div className="empty">
+        <h2>Page not found</h2>
+        <p>That address doesn't lead anywhere.</p>
+        <Link to="/app" className="btn">Go to my reins</Link>
+      </div>
+    );
 
   return (
     <>

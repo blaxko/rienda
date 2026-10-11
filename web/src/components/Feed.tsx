@@ -70,7 +70,7 @@ export function Feed({ view, times, decimals, loading, error, onRefresh }: Props
     <div className="card">
       <div className="row" style={{ marginBottom: 8 }}>
         <h2 style={{ margin: 0 }}>Activity {loading && <span className="muted" style={{ fontWeight: 400, fontSize: ".85rem" }}>· loading history…</span>}</h2>
-        <button className="ghost small" onClick={onRefresh}>Refresh</button>
+        <button className="btn ghost small" onClick={onRefresh}>Refresh</button>
       </div>
       {error && <p className="tx tx-err">Could not load activity: {error}</p>}
       {!loading && view.feed.length === 0 && !error && <p className="muted">No activity yet.</p>}

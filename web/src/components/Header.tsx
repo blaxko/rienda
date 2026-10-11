@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import type { Connector } from "wagmi";
 import { useConnect, useConnection, useConnectors, useDisconnect, useSwitchChain } from "wagmi";
 import { numberToHex } from "viem";
-import { Link } from "../router";
+import { AlertTriangle } from "@untitledui/icons";
+import { Link, usePath } from "../router";
 import { NETWORK, RIENDA, addressUrl, chain } from "../config";
 import { useWallet } from "../hooks";
 import { shortAddr } from "../lib/format";
@@ -18,7 +19,7 @@ function useWalletChoices(): { choices: Connector[]; fallbackOnly: boolean } {
   return { choices: hasLegacyProvider ? generic : [], fallbackOnly: hasLegacyProvider };
 }
 
-function ConnectMenu({ onError }: { onError: (msg: string | null) => void }) {
+export function ConnectMenu({ onError }: { onError: (msg: string | null) => void }) {
   const connect = useConnect();
   const { choices, fallbackOnly } = useWalletChoices();
   const [open, setOpen] = useState(false);
@@ -46,7 +47,7 @@ function ConnectMenu({ onError }: { onError: (msg: string | null) => void }) {
 
   return (
     <div className="picker-wrap" ref={ref}>
-      <button onClick={() => setOpen((o) => !o)} aria-expanded={open} disabled={connect.isPending}>
+      <button className="btn" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="menu" disabled={connect.isPending}>
         {connect.isPending ? "Connecting… check your wallet" : "Connect wallet"}
       </button>
       {open && (
@@ -75,33 +76,37 @@ export function Header() {
   const disconnect = useDisconnect();
   const { connector } = useConnection();
   const [connectError, setConnectError] = useState<string | null>(null);
+  const path = usePath();
 
   return (
     <>
-      <header className="header">
-        <Link to="/" className="brand">Rienda</Link>
-        <nav>
-          <Link to="/">My reins</Link>
-          <Link to="/new">New rein</Link>
+      <header className="app-header">
+       <div className="inner">
+        <Link to="/" className="wordmark">Rienda</Link>
+        <nav aria-label="App">
+          <Link to="/app" aria-current={path === "/app" ? "page" : undefined}>My reins</Link>
+          <Link to="/new" aria-current={path === "/new" ? "page" : undefined}>New rein</Link>
         </nav>
-        <div className="spacer" />
-        <span className={`pill ${NETWORK}`} title={RIENDA ?? "not deployed"}>{chain.name}</span>
+        <div className="header-end">
+        <span className={`pill net ${NETWORK}`} title={RIENDA ?? "not deployed"}>{chain.name}</span>
         {w.isConnected ? (
           <>
-            {connector?.name && <span className="muted">{connector.name}</span>}
+            {connector?.name && <span className="muted hide-sm">{connector.name}</span>}
             <a className="addr" href={addressUrl(w.address!)} target="_blank" rel="noreferrer" title={w.address}>
               {shortAddr(w.address!)}
             </a>
-            <button className="ghost" onClick={() => disconnect.mutate()}>Disconnect</button>
+            <button className="btn ghost small" onClick={() => disconnect.mutate()}>Disconnect</button>
           </>
         ) : (
           <ConnectMenu onError={setConnectError} />
         )}
+        </div>
+       </div>
       </header>
       {connectError && !w.isConnected && (
-        <div className="banner banner-red" role="alert">
-          {connectError} <button className="ghost small" onClick={() => setConnectError(null)}>Dismiss</button>
-        </div>
+        <div className="global-banner"><div className="banner banner-red" role="alert">
+          <AlertTriangle width={18} height={18} aria-hidden /> <span>{connectError}</span> <button className="btn ghost small" onClick={() => setConnectError(null)}>Dismiss</button>
+        </div></div>
       )}
     </>
   );
@@ -169,13 +174,15 @@ export function NetworkGuard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [w.isConnected, w.onRightChain, key]);
 
-  if (!RIENDA) return <div className="banner banner-red">Rienda is not deployed on {chain.name} yet.</div>;
+  if (!RIENDA) return <div className="global-banner"><div className="banner banner-red" role="alert"><AlertTriangle width={18} height={18} aria-hidden /> Rienda is not deployed on {chain.name} yet.</div></div>;
   if (!w.isConnected || w.onRightChain) return null;
   return (
-    <div className="banner banner-amber" role="alert">
-      <strong>Switch to Monad.</strong> Your wallet is on another network (chain {chainId}), so actions are disabled.{" "}
-      <button onClick={switchOrAdd} disabled={pending}>{pending ? "Check your wallet…" : `Switch to ${chain.name}`}</button>
-      {error && <div className="tx tx-err">{error}</div>}
+    <div className="global-banner">
+      <div className="banner banner-amber" role="alert">
+        <AlertTriangle width={18} height={18} aria-hidden />
+        <span><strong>Wrong network.</strong> Your wallet is on chain {chainId}. Switch to {chain.name} to make changes. Until then you can only look.{error && <><br />{error}</>}</span>
+        <button className="btn small" onClick={switchOrAdd} disabled={pending}>{pending ? "Check your wallet…" : `Switch to ${chain.name}`}</button>
+      </div>
     </div>
   );
 }

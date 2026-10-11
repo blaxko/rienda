@@ -50,24 +50,24 @@ export function HeldPanel({ reinId, view, decimals, balance, canAct, onDone, acc
   if (pending.length === 0 && tx.state.phase === "idle") return null;
 
   return (
-    <div className="card" style={{ borderColor: "var(--amber)" }}>
-      <h2>Waiting for you {pending.length > 0 && <span className="status status-Frozen" style={{ background: "var(--amber-bg)", color: "var(--amber)" }}>{pending.length}</span>}</h2>
+    <div className="card">
+      <h2>Waiting for you {pending.length > 0 && <span className="status status-Held">{pending.length}</span>}</h2>
       {pending.map((r) => {
         const held = view.held.get(r.id);
         const label = view.label(r.to);
         const short = r.amount > balance;
         return (
-          <div key={r.id.toString()} className="row" style={{ padding: "10px 0", borderTop: "1px solid var(--border)" }}>
+          <div key={r.id.toString()} className="row" style={{ padding: "16px 0", borderTop: "1px solid var(--line)", alignItems: "flex-start" }}>
             <div>
               <strong>${fmtUsdc(r.amount, decimals)}</strong> to {label ?? "Unknown address"}{" "}
               <span className="mono muted">{shortAddr(r.to)}</span>
               {held?.args.memo ? <div className="muted">“{held.args.memo}”</div> : null}
               <div className="muted">Request #{r.id.toString()} · {fmtDateTime(r.createdAt)}</div>
-              {short && <div className="tx tx-err">Balance is lower than this request. Deposit first.</div>}
+              {short && <div className="field-error">Balance is lower than this request. Deposit first.</div>}
             </div>
             <div className="actions">
-              <button className="good" disabled={!canAct || tx.busy || short} onClick={() => act("approve", r.id)}>Approve</button>
-              <button className="ghost" disabled={!canAct || tx.busy} onClick={() => act("deny", r.id)}>Deny</button>
+              <button className="btn good" disabled={!canAct || tx.busy || short} onClick={() => act("approve", r.id)}>Approve</button>
+              <button className="btn ghost" disabled={!canAct || tx.busy} onClick={() => act("deny", r.id)}>Deny</button>
             </div>
           </div>
         );
