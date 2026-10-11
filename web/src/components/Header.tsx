@@ -7,6 +7,7 @@ import { useWallet } from "../hooks";
 import { shortAddr } from "../lib/format";
 import { errorText } from "../lib/tx";
 import { chainAddParams } from "../lib/wallet";
+import { RiendaMark } from "./Logo";
 import { ConnectButton } from "./ConnectModal";
 
 export function Header() {
@@ -19,7 +20,7 @@ export function Header() {
     <>
       <header className="app-header">
        <div className="inner">
-        <Link to="/" className="wordmark">Rienda</Link>
+        <Link to="/" className="wordmark"><RiendaMark />Rienda</Link>
         <nav aria-label="App">
           <Link to="/app" aria-current={path === "/app" ? "page" : undefined}>My reins</Link>
           <Link to="/new" aria-current={path === "/new" ? "page" : undefined}>New rein</Link>

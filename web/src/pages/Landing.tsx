@@ -4,6 +4,7 @@ import { Link } from "../router";
 import { RIENDA, addressUrl, chain } from "../config";
 import { shortAddr } from "../lib/format";
 import { CountUp, Words, reducedMotion, useRevealOnScroll } from "../lib/motion";
+import { RiendaMark } from "../components/Logo";
 import { Demo } from "../components/Demo";
 import { Shapes } from "../components/Shapes";
 
@@ -82,7 +83,7 @@ export function Landing() {
       <div className={`nav-wrap ${scrolled || menu ? "scrolled" : ""}`}>
         <div className="wrap">
           <header className="nav">
-            <Link to="/" className="wordmark"><span className="mark" aria-hidden />Rienda</Link>
+            <Link to="/" className="wordmark"><RiendaMark />Rienda</Link>
             <nav className={`nav-links ${menu ? "open" : ""}`} id="nav-links" aria-label="Main">
               <a href="#what" onClick={close}>What it is</a>
               <a href="#how" onClick={close}>How it works</a>
@@ -238,7 +239,7 @@ console.log(r.outcome, r.reason, r.txHash); `}<span className="c">{`// "Paid" | 
 
         <footer className="footer">
           <div>
-            <Link to="/" className="wordmark"><span className="mark" aria-hidden />Rienda</Link>
+            <Link to="/" className="wordmark"><RiendaMark />Rienda</Link>
             <p className="small">Spending limits for AI agents on Monad. MIT licensed.</p>
           </div>
           <nav aria-label="Footer">
