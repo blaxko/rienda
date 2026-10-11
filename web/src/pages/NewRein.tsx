@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { erc20Abi, getAddress, isAddress, parseEventLogs, zeroAddress } from "viem";
+import { erc20Abi, isAddress, parseEventLogs } from "viem";
 import { DEFAULT_LIMITS, MAX_STRIKES_LIMIT, riendaAbi } from "@rienda/sdk";
 import merchantsFile from "../../../agent/merchants.json";
 import { NETWORK, RIENDA, USDC, chain, publicClient } from "../config";
 import { useDecimals, useWallet } from "../hooks";
 import { useTx } from "../lib/tx";
 import { fmtUsdc, parseUsdc } from "../lib/format";
+import { cleanAddress, parseAddress } from "../lib/address";
 import { TxStatus } from "../components/TxStatus";
 import { Link, navigate } from "../router";
 
@@ -15,7 +16,7 @@ type MerchantRow = { address: string; label: string };
 // Prefill from the demo merchants only on testnet; on mainnet the owner enters real merchants.
 const PREFILL: MerchantRow[] =
   NETWORK === "testnet"
-    ? merchantsFile.merchants.filter((m) => isAddress(m.address)).map((m) => ({ address: m.address, label: m.label }))
+    ? merchantsFile.merchants.filter((m) => isAddress(m.address, { strict: false })).map((m) => ({ address: m.address, label: m.label }))
     : [{ address: "", label: "" }];
 
 type Stage = "idle" | "approve" | "create" | "done";
@@ -33,6 +34,8 @@ export function NewRein() {
   const [days, setDays] = useState<string>(String(DEFAULT_LIMITS.expiryDays));
   const [deposit, setDeposit] = useState("30");
   const [merchants, setMerchants] = useState<MerchantRow[]>(PREFILL);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const touch = (id: string) => setTouched((t) => (t[id] ? t : { ...t, [id]: true }));
   const [stage, setStage] = useState<Stage>("idle");
   const [skippedApprove, setSkippedApprove] = useState(false);
 
@@ -42,40 +45,58 @@ export function NewRein() {
     queryFn: () => publicClient.readContract({ address: USDC, abi: erc20Abi, functionName: "balanceOf", args: [w.address!] }),
   });
 
-  // ── validation: the same rules as the contract (FR-2) ──
-  const errors: string[] = [];
+  // ── validation: the same rules as the contract (FR-2). Each issue names the field it belongs to. ──
+  type Issue = { field: string; msg: string };
+  const issues: Issue[] = [];
+  const bad = (field: string, msg: string) => issues.push({ field, msg });
   const perPayU = parseUsdc(perPay, decimals);
   const dailyU = parseUsdc(daily, decimals);
   const ceilingU = parseUsdc(ceiling, decimals);
   const depositU = deposit.trim() === "0" ? 0n : parseUsdc(deposit, decimals);
   const strikesN = Number(strikes);
   const daysN = Number(days);
+  const agentA = parseAddress(agent);
 
-  if (!isAddress(agent) || agent.toLowerCase() === zeroAddress) errors.push("Agent must be a valid address.");
-  else if (w.address && agent.toLowerCase() === w.address.toLowerCase()) errors.push("The agent can't be your owner wallet.");
-  if (perPayU === null) errors.push("Per-payment cap must be greater than 0.");
-  if (dailyU === null) errors.push("Daily cap must be greater than 0.");
-  if (ceilingU === null) errors.push("Hold ceiling must be greater than 0.");
-  if (perPayU !== null && dailyU !== null && perPayU > dailyU) errors.push("Per-payment cap can't be above the daily cap.");
-  if (perPayU !== null && ceilingU !== null && perPayU > ceilingU) errors.push("Per-payment cap can't be above the hold ceiling.");
-  if (!Number.isInteger(strikesN) || strikesN < 1 || strikesN > MAX_STRIKES_LIMIT) errors.push(`Max strikes must be 1 to ${MAX_STRIKES_LIMIT}.`);
-  if (!Number.isInteger(daysN) || daysN < 1) errors.push("Expiry must be at least 1 day.");
-  if (depositU === null) errors.push("Deposit must be 0 or a positive amount.");
+  if (agent.trim() === "") bad("agent", "Agent: enter the agent wallet address.");
+  else if (!agentA) bad("agent", "Agent: not a valid address (0x followed by 40 hex characters).");
+  else if (w.address && agentA.toLowerCase() === w.address.toLowerCase()) bad("agent", "Agent: it can't be your owner wallet.");
+  if (perPayU === null) bad("pp", "Per-payment cap: must be greater than 0.");
+  if (dailyU === null) bad("dc", "Daily cap: must be greater than 0.");
+  if (ceilingU === null) bad("hc", "Hold ceiling: must be greater than 0.");
+  if (perPayU !== null && dailyU !== null && perPayU > dailyU) bad("pp", "Per-payment cap: can't be above the daily cap.");
+  if (perPayU !== null && ceilingU !== null && perPayU > ceilingU) bad("pp", "Per-payment cap: can't be above the hold ceiling.");
+  if (!Number.isInteger(strikesN) || strikesN < 1 || strikesN > MAX_STRIKES_LIMIT) bad("ms", `Max strikes: must be 1 to ${MAX_STRIKES_LIMIT}.`);
+  if (!Number.isInteger(daysN) || daysN < 1) bad("ex", "Expiry: at least 1 day.");
+  if (depositU === null) bad("dep", "Deposit: 0 or a positive amount.");
   else if (balance.data !== undefined && depositU > balance.data) {
-    errors.push(`Deposit is more than your USDC balance ($${fmtUsdc(balance.data, decimals)}).`);
+    bad("dep", `Deposit: more than your USDC balance ($${fmtUsdc(balance.data, decimals)}).`);
   }
   const seen = new Set<string>();
   merchants.forEach((m, i) => {
-    if (!isAddress(m.address) || m.address.toLowerCase() === zeroAddress) errors.push(`Merchant ${i + 1}: invalid address.`);
+    const addr = parseAddress(m.address);
+    if (!addr) bad(`ma-${i}`, `Merchant ${i + 1}: ${m.address.trim() === "" ? "enter an address" : "not a valid address"}.`);
     else {
-      const lower = m.address.toLowerCase();
-      if (seen.has(lower)) errors.push(`Merchant ${i + 1}: duplicate address.`);
+      const lower = addr.toLowerCase();
+      if (seen.has(lower)) bad(`ma-${i}`, `Merchant ${i + 1}: duplicate address.`);
       seen.add(lower);
-      if (lower === agent.toLowerCase() || lower === w.address?.toLowerCase()) errors.push(`Merchant ${i + 1}: can't be the agent or owner.`);
+      if (lower === agentA?.toLowerCase() || lower === w.address?.toLowerCase()) bad(`ma-${i}`, `Merchant ${i + 1}: can't be the agent or owner.`);
     }
-    if (!m.label.trim()) errors.push(`Merchant ${i + 1}: add a label.`);
+    if (!m.label.trim()) bad(`ml-${i}`, `Merchant ${i + 1}: add a label.`);
   });
-  if (merchants.length === 0) errors.push("Add at least one merchant: only listed merchants can ever be paid.");
+  if (merchants.length === 0) bad("merchants", "Merchants: add at least one. Only listed merchants can ever be paid.");
+  const errors = issues.map((i) => i.msg);
+  const fieldError = (id: string) => issues.find((i) => i.field === id)?.msg.replace(/^[^:]+: /, "");
+  /** props for an input: invalid state + the inline message once the field was touched */
+  const fp = (id: string) => {
+    const msg = touched[id] ? fieldError(id) : undefined;
+    return { id, onBlur: () => touch(id), "aria-invalid": msg ? true : undefined, "aria-describedby": msg ? `${id}-err` : undefined } as const;
+  };
+  const Err = ({ id }: { id: string }) => (touched[id] && fieldError(id) ? <div className="field-error" id={`${id}-err`} role="alert">{fieldError(id)}</div> : null);
+  // things that block the button but aren't a field
+  const blockers: string[] = [];
+  if (!RIENDA) blockers.push("Rienda isn't deployed on this network.");
+  if (!w.isConnected) blockers.push("Connect your wallet.");
+  else if (!w.canAct) blockers.push("Switch your wallet to Monad Testnet.");
 
   const busy = tx.busy;
   const canSubmit = w.canAct && errors.length === 0 && !busy && !!RIENDA && stage !== "done";
@@ -112,8 +133,8 @@ export function NewRein() {
           abi: riendaAbi,
           functionName: "createRein",
           args: [
-            { agent: getAddress(agent), perPayCap: perPayU!, dailyCap: dailyU!, holdCeiling: ceilingU!, expiry, maxStrikes: strikesN },
-            merchants.map((m) => getAddress(m.address)),
+            { agent: agentA!, perPayCap: perPayU!, dailyCap: dailyU!, holdCeiling: ceilingU!, expiry, maxStrikes: strikesN },
+            merchants.map((m) => parseAddress(m.address)!),
             merchants.map((m) => m.label.trim()),
             need,
           ],
@@ -147,18 +168,19 @@ export function NewRein() {
         <h2>Agent</h2>
         <div className="field">
           <label htmlFor="agent">Agent wallet address (holds only MON for gas)</label>
-          <input id="agent" value={agent} onChange={(e) => setAgent(e.target.value.trim())} placeholder="0x…" spellCheck={false} />
+          <input {...fp("agent")} value={agent} onChange={(e) => { touch("agent"); setAgent(cleanAddress(e.target.value)); }} placeholder="0x…" spellCheck={false} autoComplete="off" autoCapitalize="off" />
+          <Err id="agent" />
         </div>
       </div>
 
       <div className="card">
         <h2>Limits (USDC)</h2>
         <div className="grid2">
-          <div className="field"><label htmlFor="pp">Per-payment cap ($)</label><input id="pp" inputMode="decimal" value={perPay} onChange={(e) => setPerPay(e.target.value)} /></div>
-          <div className="field"><label htmlFor="dc">Daily cap ($)</label><input id="dc" inputMode="decimal" value={daily} onChange={(e) => setDaily(e.target.value)} /></div>
-          <div className="field"><label htmlFor="hc">Hold ceiling ($)</label><input id="hc" inputMode="decimal" value={ceiling} onChange={(e) => setCeiling(e.target.value)} /></div>
-          <div className="field"><label htmlFor="ms">Max strikes</label><input id="ms" inputMode="numeric" value={strikes} onChange={(e) => setStrikes(e.target.value)} /></div>
-          <div className="field"><label htmlFor="ex">Expiry (days)</label><input id="ex" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} /></div>
+          <div className="field"><label htmlFor="pp">Per-payment cap ($)</label><input {...fp("pp")} inputMode="decimal" value={perPay} onChange={(e) => { touch("pp"); setPerPay(e.target.value); }} /><Err id="pp" /></div>
+          <div className="field"><label htmlFor="dc">Daily cap ($)</label><input {...fp("dc")} inputMode="decimal" value={daily} onChange={(e) => { touch("dc"); setDaily(e.target.value); }} /><Err id="dc" /></div>
+          <div className="field"><label htmlFor="hc">Hold ceiling ($)</label><input {...fp("hc")} inputMode="decimal" value={ceiling} onChange={(e) => { touch("hc"); setCeiling(e.target.value); }} /><Err id="hc" /></div>
+          <div className="field"><label htmlFor="ms">Max strikes</label><input {...fp("ms")} inputMode="numeric" value={strikes} onChange={(e) => { touch("ms"); setStrikes(e.target.value); }} /><Err id="ms" /></div>
+          <div className="field"><label htmlFor="ex">Expiry (days)</label><input {...fp("ex")} inputMode="numeric" value={days} onChange={(e) => { touch("ex"); setDays(e.target.value); }} /><Err id="ex" /></div>
         </div>
         <p className="card-note">
           Above the per-payment cap (or over the daily cap) a payment waits for your approval. Above the hold ceiling, or to anyone not
@@ -170,8 +192,8 @@ export function NewRein() {
         <h2>Allowed merchants</h2>
         {merchants.map((m, i) => (
           <div className="merchant-row" key={i}>
-            <div><label htmlFor={`ml-${i}`}>Label</label><input id={`ml-${i}`} value={m.label} onChange={(e) => setMerchant(i, { label: e.target.value })} placeholder="News API" /></div>
-            <div><label htmlFor={`ma-${i}`}>Address</label><input id={`ma-${i}`} value={m.address} onChange={(e) => setMerchant(i, { address: e.target.value.trim() })} placeholder="0x…" spellCheck={false} /></div>
+            <div><label htmlFor={`ml-${i}`}>Label</label><input {...fp(`ml-${i}`)} value={m.label} onChange={(e) => { touch(`ml-${i}`); setMerchant(i, { label: e.target.value }); }} placeholder="News API" /><Err id={`ml-${i}`} /></div>
+            <div><label htmlFor={`ma-${i}`}>Address</label><input {...fp(`ma-${i}`)} value={m.address} onChange={(e) => { touch(`ma-${i}`); setMerchant(i, { address: cleanAddress(e.target.value) }); }} placeholder="0x…" spellCheck={false} autoComplete="off" autoCapitalize="off" /><Err id={`ma-${i}`} /></div>
             <button className="btn ghost" onClick={() => setMerchants((ms) => ms.filter((_, j) => j !== i))} aria-label={`Remove merchant ${i + 1}`}>Remove</button>
           </div>
         ))}
@@ -182,16 +204,13 @@ export function NewRein() {
         <h2>Deposit</h2>
         <div className="field" style={{ maxWidth: 240 }}>
           <label htmlFor="dep">Deposit ($)</label>
-          <input id="dep" inputMode="decimal" value={deposit} onChange={(e) => setDeposit(e.target.value)} />
+          <input {...fp("dep")} inputMode="decimal" value={deposit} onChange={(e) => { touch("dep"); setDeposit(e.target.value); }} />
+          <Err id="dep" />
         </div>
         <p className="card-note">
           Your USDC balance: {balance.data !== undefined ? `$${fmtUsdc(balance.data, decimals)}` : w.isConnected ? "…" : "connect a wallet"}
         </p>
       </div>
-
-      {errors.length > 0 && w.isConnected && (
-        <ul className="errors" role="alert">{errors.map((e) => <li key={e}>{e}</li>)}</ul>
-      )}
 
       <div className="card">
         <h2>Create</h2>
@@ -205,10 +224,15 @@ export function NewRein() {
             Create rein
           </li>
         </ol>
-        <button className="btn" onClick={submit} disabled={!canSubmit}>
+        <button className="btn" onClick={submit} disabled={!canSubmit} aria-describedby={!canSubmit ? "why-disabled" : undefined}>
           {busy ? "Working…" : "Approve & create rein"}
         </button>
-        {!w.canAct && <p className="card-note">{w.isConnected ? "Switch to Monad to continue." : "Connect your wallet to continue."}</p>}
+        {!canSubmit && !busy && stage !== "done" && (blockers.length > 0 || errors.length > 0) && (
+          <div className="why-disabled" id="why-disabled">
+            <strong>Not ready yet:</strong>
+            <ul>{[...blockers, ...errors].map((m) => <li key={m}>{m}</li>)}</ul>
+          </div>
+        )}
         <TxStatus state={tx.state} />
       </div>
     </section>

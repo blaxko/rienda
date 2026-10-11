@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { erc20Abi, formatUnits, getAddress, isAddress } from "viem";
+import { erc20Abi, formatUnits } from "viem";
 import { PAY_GAS_LIMIT, riendaAbi } from "@rienda/sdk";
 import { RIENDA, USDC, addressUrl, chain, publicClient, rienda } from "../config";
 import { useDecimals, useWallet } from "../hooks";
@@ -12,6 +12,7 @@ import { Feed } from "../components/Feed";
 import { HeldPanel } from "../components/HeldPanel";
 import { AlertTriangle, SlashCircle01 } from "@untitledui/icons";
 import { Link } from "../router";
+import { cleanAddress, parseAddress } from "../lib/address";
 
 const GAS_WARN_PAYMENTS = 20n; // warn when the agent can't cover 20 pay calls
 
@@ -124,8 +125,9 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
     setWithdrawAmt("");
   }
   async function addMerchant() {
-    if (!isAddress(mAddr) || !mLabel.trim()) return;
-    await write("Add merchant", { functionName: "setMerchant", args: [reinId, getAddress(mAddr), true, mLabel.trim()] });
+    const merchant = parseAddress(mAddr);
+    if (!merchant || !mLabel.trim()) return;
+    await write("Add merchant", { functionName: "setMerchant", args: [reinId, merchant, true, mLabel.trim()] });
     setMAddr("");
     setMLabel("");
   }
@@ -219,8 +221,8 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
         {isOwner && rein.status !== "Closed" && (
           <div className="actions" style={{ marginTop: 12 }}>
             <div><label htmlFor="m-label">Label</label><input id="m-label" value={mLabel} onChange={(e) => setMLabel(e.target.value)} placeholder="Coffee" /></div>
-            <div style={{ flex: 1, minWidth: 200 }}><label htmlFor="m-addr">Address</label><input id="m-addr" value={mAddr} onChange={(e) => setMAddr(e.target.value.trim())} placeholder="0x…" spellCheck={false} /></div>
-            <button className="btn ghost" disabled={!canOwnerAct || !isAddress(mAddr) || !mLabel.trim()} onClick={addMerchant}>Add merchant</button>
+            <div style={{ flex: 1, minWidth: 200 }}><label htmlFor="m-addr">Address</label><input id="m-addr" value={mAddr} onChange={(e) => setMAddr(cleanAddress(e.target.value))} placeholder="0x…" spellCheck={false} /></div>
+            <button className="btn ghost" disabled={!canOwnerAct || !parseAddress(mAddr) || !mLabel.trim()} onClick={addMerchant}>Add merchant</button>
           </div>
         )}
       </div>

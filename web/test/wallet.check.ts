@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { chainFor } from "@rienda/sdk";
 import { chainAddParams, classifyConnectError, metamaskDeepLink, walletOptions, withTimeout, ConnectTimeoutError } from "../src/lib/wallet";
 import { pay, initialDemo, decide } from "../src/lib/simulate";
+import { cleanAddress, parseAddress } from "../src/lib/address";
 
 // chain-add params: Monad Testnet 10143, our RPC, MON, MonadVision
 const p = chainAddParams(chainFor("testnet"));
@@ -44,5 +45,15 @@ assert.equal(s.balance, 12);
 for (let i = 0; i < 3; i++) s = pay(s, "unknown", 500);
 assert.ok(s.frozen && s.strikes === 3 && s.balance === 12);
 assert.equal(pay(s, "news", 2).events[0]!.outcome, "Reverted");
+
+// address inputs: the agent, any case, stray whitespace and invisible characters
+const AGENT = "0x83e0171F8f03FCcc280205A9c6116e1dF26761B3";
+for (const v of [AGENT, `  ${AGENT}  `, `${AGENT}\n`, AGENT.toLowerCase(), "0x" + AGENT.slice(2).toUpperCase(), `\u200B${AGENT}`, `${AGENT}\u200E`, `\u00A0${AGENT}\t`, `"${AGENT}"`, "0X" + AGENT.slice(2)]) {
+  assert.equal(parseAddress(v), AGENT, JSON.stringify(v));
+}
+assert.equal(cleanAddress(` \u200B${AGENT}\n`), AGENT);
+for (const v of ["", "0x", AGENT.slice(0, -1), AGENT + "0", "0x" + "g".repeat(40), "0x" + "0".repeat(40), "83e0171F8f03FCcc280205A9c6116e1dF26761B3"]) {
+  assert.equal(parseAddress(v), null, JSON.stringify(v));
+}
 
 console.log("web checks passed");
