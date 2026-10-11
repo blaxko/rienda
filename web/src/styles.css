@@ -978,3 +978,41 @@ input:focus-visible, select:focus-visible { border-color: var(--accent); }
   .nav-wrap .nav { padding-top: 0; }
 }
 @media (min-width: 1500px) { .wrap { max-width: 1480px; } .main { max-width: 1200px; } }
+
+/* error cards: one sentence, a retry, details that wrap */
+.err-notice { align-items: flex-start; flex-wrap: wrap; }
+.err-body { flex: 1 1 220px; min-width: 0; }
+.err-text { margin: 0; overflow-wrap: anywhere; }
+.err-details { margin-top: 8px; font-size: 13px; color: inherit; }
+.err-details summary { cursor: pointer; font-weight: 500; min-height: 28px; display: flex; align-items: center; }
+.err-details pre { margin: 6px 0 0; white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; max-height: 9.5em; overflow: auto; font: 12px/1.5 var(--mono); padding: 10px 12px; background: rgba(255, 255, 255, .6); border-radius: 10px; color: var(--text); }
+.toast .err-body, .toast > span { min-width: 0; overflow-wrap: anywhere; }
+.err-notice .btn { margin-left: auto; }
+
+/* wallet trouble sheet: above the AppKit modal (z-index 300) */
+.trouble-scrim { position: fixed; inset: 0; z-index: 400; background: rgba(20, 17, 15, .32); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); display: grid; place-items: center; padding: 20px; animation: fade .2s ease both; }
+.trouble-card { width: 100%; max-width: 420px; border-radius: 28px; padding: 22px; background: rgba(251, 248, 243, .94); animation: modal-in .3s var(--ease) both; }
+.trouble-card .modal-title { font-size: 26px; line-height: 1.15; }
+.trouble-card .modal-actions .btn { width: 100%; }
+@media (max-width: 760px) {
+  .trouble-scrim { place-items: end center; padding: 0; }
+  .trouble-card { max-width: none; border-radius: 28px 28px 0 0; padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
+}
+
+/* connected header: full row on laptops, one chip on phones */
+.acct-row { display: inline-flex; align-items: center; gap: 12px; }
+.acct-mobile { display: none; position: relative; }
+.acct-chip { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: 999px; background: rgba(255, 255, 255, .7); border: 1px solid var(--line-strong); color: var(--text); font-size: 14px; }
+.acct-chip .mono { font-size: 13px; }
+.acct-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+.acct-dot.bad { background: var(--red); }
+.acct-menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 60; width: min(280px, calc(100vw - 32px)); border-radius: 20px; padding: 12px; display: flex; flex-direction: column; gap: 4px; background: rgba(251, 248, 243, .95); }
+.acct-row2 { display: flex; justify-content: space-between; gap: 12px; padding: 10px 6px; font-size: 14px; border-bottom: 1px solid var(--line); }
+.acct-row2 .warn { color: var(--red); font-weight: 500; }
+.acct-link { display: flex; align-items: center; min-height: 44px; padding: 0 6px; font-size: 14px; }
+.acct-menu .btn { width: 100%; margin-top: 4px; }
+@media (max-width: 760px) {
+  .acct-desktop { display: none !important; }
+  .acct-mobile { display: block; }
+  .app-header .header-end { margin-left: auto; }
+}

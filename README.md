@@ -187,6 +187,7 @@ Optional `web/.env` (see `web/.env.example`): `VITE_NETWORK`, `VITE_RPC_URL_TEST
 - Build: `npm ci --include=dev && npm run build` (builds the SDK, then the web app)
 - Start: `npm start` (`serve -s web/dist -l tcp://0.0.0.0:$PORT`)
 - **Reown allowed domains:** the WalletConnect relay only talks to sites on the project's allowed-domains list (Reown dashboard, project settings). Add the production host (for example `rienda-production.up.railway.app`) or wallet connection on phones never starts: the relay answers `Unauthorized: origin not allowed` (code 3000) and the modal waits forever on "Continue in MetaMask" with the Open button disabled. The site shows a notice when it sees that error. `localhost` is always allowed.
+- **RPCs:** reads try the public Monad RPC first and fall back to `rpc-testnet.monadinfra.com`, Ankr and thirdweb (see `FALLBACK_RPC` in `packages/sdk/src/chains.ts`), so one rate-limited endpoint does not take the dashboard down.
 - Variables (Railway **Variables** tab; all optional, all public in the bundle, never put keys here): `VITE_NETWORK` (`testnet`, the default), `VITE_RPC_URL_TESTNET` (a higher-limit RPC speeds up history loading; the public RPC is the fallback).
 - Local check of the same commands: `npm ci --include=dev && npm run build && PORT=4173 npm start`, then open `http://localhost:4173/rein/2`.
 

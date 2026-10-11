@@ -4,6 +4,7 @@ import { coinbaseWallet, injected } from "wagmi/connectors";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { createAppKit } from "@reown/appkit/react";
 import { brandAppKit } from "./lib/appkitBrand";
+import { watchPairing } from "./lib/walletWatch";
 import { LOGS_RPC, PUBLIC_LOGS_RANGE, addresses, chainFor, createRienda, explorerUrl, transportFor, type Network } from "@rienda/sdk";
 
 const env = import.meta.env;
@@ -63,6 +64,7 @@ function buildWagmiConfig() {
       features: { analytics: false, email: false, socials: false, swaps: false, onramp: false, reownBranding: false } as never,
     });
     brandAppKit(modal);
+    watchPairing(modal as never);
     return adapter.wagmiConfig;
   }
   // No project id: injected wallets (EIP-6963) and Coinbase only. WalletConnect is hidden, never a crash.

@@ -4,6 +4,7 @@ import { Header, NetworkGuard } from "./components/Header";
 import { Shapes } from "./components/Shapes";
 import { SiteLayout } from "./components/SiteLayout";
 import { WalletDomainNotice } from "./components/WalletDomainNotice";
+import { WalletTrouble } from "./components/WalletTrouble";
 import { Link, usePath } from "./router";
 import { usePageMeta } from "./lib/meta";
 import { About } from "./pages/About";
@@ -42,6 +43,7 @@ export function App() {
       <SiteLayout>
         <ErrorBoundary key={path}><Site /></ErrorBoundary>
         <WalletDomainNotice />
+        <WalletTrouble />
       </SiteLayout>
     );
   }
@@ -66,6 +68,7 @@ export function App() {
       <Header />
       <AppMeta path={path} />
       <WalletDomainNotice />
+      <WalletTrouble />
       <NetworkGuard />
       <main className="main">
         <ErrorBoundary key={path}>{page}</ErrorBoundary>

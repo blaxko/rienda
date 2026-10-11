@@ -5,6 +5,7 @@ import { useAppKit } from "@reown/appkit/react";
 import { AlertTriangle, Loading02, XClose } from "@untitledui/icons";
 import { USE_APPKIT, chain } from "../config";
 import { RiendaMark } from "./Logo";
+import { redact } from "../lib/errors";
 import {
   classifyConnectError,
   isMobileBrowser,
@@ -125,7 +126,8 @@ function FallbackModal({ open, onClose }: { open: boolean; onClose: () => void }
               <AlertTriangle width={18} height={18} aria-hidden />
               <span>
                 <strong>{view.failure.kind === "rejected" ? "Request rejected" : view.failure.kind === "timeout" ? "Timed out" : view.failure.kind === "not-installed" ? "Wallet not found" : "Couldn't connect"}</strong>
-                <br />{view.failure.message}
+                <br />{view.failure.kind === "other" ? "Try again, or pick another wallet." : view.failure.message}
+                {view.failure.kind === "other" && <details className="err-details"><summary>Details</summary><pre>{redact(view.failure.message)}</pre></details>}
               </span>
             </div>
             <div className="modal-actions">
@@ -152,7 +154,26 @@ function FallbackButton({ label, className }: { label: string; className: string
 
 function AppKitButton({ label, className }: { label: string; className: string }) {
   const { open } = useAppKit();
-  return <button className={className} onClick={() => open({ view: "Connect" })} aria-haspopup="dialog">{label}</button>;
+  const connect = useConnect();
+  const connectors = useConnectors();
+  // Inside a wallet's own browser (MetaMask, Trust, Coinbase, ...) the wallet is already there: connect in one tap
+  // instead of making the user pick it from a list.
+  const inWalletBrowser = typeof window !== "undefined" && isMobileBrowser() && !!(window as { ethereum?: unknown }).ethereum;
+  const injectedConnector = inWalletBrowser ? (connectors.find((c) => c.type === "injected" && c.id !== "injected") ?? connectors.find((c) => c.id === "injected")) : undefined;
+  const name = injectedConnector && injectedConnector.id !== "injected" ? injectedConnector.name : "wallet";
+
+  async function onClick() {
+    if (injectedConnector) {
+      try {
+        await connect.mutateAsync({ connector: injectedConnector, chainId: chain.id });
+        return;
+      } catch (e) {
+        if (classifyConnectError(e).kind === "rejected") return; // the user said no: don't pop another dialog
+      }
+    }
+    void open({ view: "Connect" });
+  }
+  return <button className={className} onClick={onClick} aria-haspopup="dialog" disabled={connect.isPending}>{connect.isPending ? "Connecting…" : injectedConnector ? `Connect ${name}` : label}</button>;
 }
 
 /** The header / empty-state button. Opens the Reown AppKit modal, or the small fallback modal without a project id. */
