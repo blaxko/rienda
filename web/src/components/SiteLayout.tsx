@@ -103,7 +103,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
               ))}
             </nav>
             <div className="nav-end">
-              <span className="pill net" title={RIENDA ?? undefined}>{chain.name}</span>
+              <Link to="/developers" className="btn small ghost nav-docs">Read the docs</Link>
               <Link to="/app" className="btn small nav-cta">Open app</Link>
               <button className="nav-menu" aria-haspopup="dialog" aria-expanded={menu} aria-label="Open menu" onClick={() => setMenu(true)}>
                 <span className="burger" aria-hidden />
@@ -120,6 +120,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
           <div>
             <Link to="/" className="wordmark"><RiendaMark />Rienda</Link>
             <p className="small">Spending limits for AI agents on Monad. MIT licensed.</p>
+            <p className="net-line" title={RIENDA ?? undefined}><span className="net-dot" aria-hidden />{chain.name}</p>
           </div>
           <nav aria-label="Footer">
             {SITE_NAV.map((l) => <Link key={l.to} to={l.to}>{l.label}</Link>)}

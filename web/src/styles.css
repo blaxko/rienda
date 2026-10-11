@@ -886,3 +886,95 @@ input:focus-visible, select:focus-visible { border-color: var(--accent); }
 .code-inline { max-width: 100%; }
 
 .lane2 .rail::before { display: none; }
+
+/* ═════════ fluid scale, spacing tokens, safe areas (last, so it wins over the older fixed sizes) ═════════ */
+:root {
+  --gutter: clamp(16px, .9rem + 1vw, 28px);
+  --radius: clamp(18px, 1rem + .5vw, 24px);
+  --sec: clamp(72px, 4rem + 4vw, 144px);          /* space above a section */
+  --block: clamp(40px, 2rem + 2.5vw, 64px);       /* space between a heading and its content */
+  --pad: clamp(24px, 1.2rem + 2.2vw, 56px);       /* inner padding of panels and the hero */
+  --inset-l: max(var(--gutter), env(safe-area-inset-left));
+  --inset-r: max(var(--gutter), env(safe-area-inset-right));
+}
+.wrap { padding-left: var(--inset-l); padding-right: var(--inset-r); }
+.app-header .inner { padding-left: var(--inset-l); padding-right: var(--inset-r); }
+.main { padding-left: var(--inset-l); padding-right: var(--inset-r); padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+.nav-wrap, .app-header { padding-top: env(safe-area-inset-top); }
+
+/* type: headings scale smoothly from 320 to 1920 */
+.hero h1 { font-size: clamp(2.25rem, 1.46rem + 4.76vw, 6.5rem); line-height: 1; letter-spacing: -.012em; }
+.page-hero h1 { font-size: clamp(2.25rem, 1.3rem + 4.38vw, 5.25rem); line-height: 1; }
+.main h1 { font-size: clamp(2rem, 1.4rem + 2.6vw, 3.5rem); }
+.section h2, .panel.soft h2, .try-teaser h2 { font-size: clamp(2rem, 1.57rem + 2.29vw, 3.75rem); line-height: 1.04; }
+.prose h2 { font-size: clamp(1.875rem, 1.5rem + 1.8vw, 2.75rem); }
+.page-cta p { font-size: clamp(1.75rem, 1.3rem + 2vw, 2.5rem); }
+.tile h3, .step2-text h3, .defs dt, .step h3, .link-card strong, .demo-left h3, .demo-right h3 { font-size: clamp(1.5rem, 1.25rem + .9vw, 1.875rem); }
+.card h2 { font-size: clamp(1.5rem, 1.3rem + .6vw, 1.75rem); }
+.sheet-links a { font-size: clamp(1.625rem, 1.4rem + 1.2vw, 1.875rem); }
+/* body copy */
+.hero .lede, .page-hero .lede { font-size: clamp(1.0625rem, 1rem + .3vw, 1.25rem); }
+.section .sub, .prose p, .step2-text p, .defs dd { font-size: clamp(1rem, .95rem + .25vw, 1.125rem); }
+.prose p.strong { font-size: clamp(1.0625rem, 1rem + .3vw, 1.25rem); }
+/* numbers */
+.stat .v, .num .v { font-size: clamp(1.75rem, 1.2rem + 1.7vw, 2.75rem); }
+.fact-n { font-size: clamp(2.25rem, 1.6rem + 2.2vw, 3.5rem); }
+.link-card .big { font-size: clamp(2rem, 1.4rem + 1.8vw, 2.75rem); }
+
+/* rhythm */
+.section { padding-top: var(--sec); }
+.section-rule { margin-top: var(--sec); }
+.section.tight { padding-top: calc(var(--sec) * .4); }
+.page-cta { margin-top: var(--sec); padding-top: calc(var(--block) * .8); }
+.footer { margin-top: var(--sec); }
+.page-hero { padding-top: clamp(40px, 2rem + 4vw, 88px); }
+.page-grid, .steps2 { margin-top: var(--block); }
+.split-block { margin-top: var(--sec); }
+.facts { margin-top: var(--sec); }
+.hero { min-height: clamp(540px, 56vw, 760px); padding: var(--pad); }
+.panel { padding: var(--pad); }
+.demo-panel { padding: clamp(14px, .5rem + 2vw, 40px); }
+.try-teaser { padding: var(--pad); }
+
+/* nav: laptop = Read the docs + Open app; phone and tablet = Open app + menu */
+.nav-end { gap: 10px; }
+.nav-docs { display: inline-flex; }
+@media (max-width: 1000px) {
+  .nav-docs { display: none; }
+  .nav-cta { display: inline-flex; height: 44px; padding: 0 20px; }
+}
+@media (max-width: 380px) { .wordmark { font-size: 20px; gap: 8px; } .nav-cta { padding: 0 16px; } .nav-end { gap: 4px; } }
+.net-line { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: var(--muted); }
+.net-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.sheet { padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); padding-top: env(safe-area-inset-top); }
+
+/* ruled lists instead of repeated cards */
+.defs { margin: var(--block) 0 0; border-top: 1px solid var(--text); }
+.defs > div { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.4fr); gap: 8px 48px; padding: 28px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+.defs dt { font-family: var(--serif); line-height: 1.1; color: var(--text); letter-spacing: -.01em; }
+.defs dd { margin: 0; line-height: 1.6; color: var(--body); max-width: 56ch; }
+.facts { display: block; border-top: 1px solid var(--text); }
+.facts > div { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.4fr); gap: 8px 48px; align-items: baseline; padding: 22px 0; border-top: 0; border-bottom: 1px solid var(--line); }
+.facts p { margin: 0; max-width: 56ch; font-size: clamp(1rem, .95rem + .25vw, 1.125rem); }
+@media (max-width: 760px) { .defs > div, .facts > div { grid-template-columns: 1fr; padding: 22px 0; } }
+
+/* hero: quieter wash, labelled example cards */
+.hero .shapes { opacity: .6; }
+.hero-float { position: relative; }
+.hero-float-label { position: absolute; left: 4px; top: -26px; font-size: 13px; font-weight: 500; color: var(--muted); }
+@media (max-width: 1100px) { .hero-float-label { position: static; grid-column: 1 / -1; } }
+
+/* call-to-action rows: one full-width button on small screens, the text link under it */
+@media (max-width: 520px) {
+  .cta-row { gap: 6px 12px; }
+  .cta-row > .btn { flex: 1 1 100%; }
+  .cta-row .link-arrow { padding-left: 0; }
+  .page-cta .cta-row > .btn { width: 100%; }
+}
+@media (max-width: 760px) {
+  .hero { align-items: flex-end; }
+  .hero-inner { gap: 32px; }
+  .section h2 { max-width: none; }
+  .nav-wrap .nav { padding-top: 0; }
+}
+@media (min-width: 1500px) { .wrap { max-width: 1480px; } .main { max-width: 1200px; } }

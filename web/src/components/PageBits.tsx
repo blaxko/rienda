@@ -35,7 +35,7 @@ export function PageCta({ children, to = "/app", label = "Open app", more }: { c
   );
 }
 
-/** "Read more →" link at the end of a landing teaser. */
-export function ReadMore({ to, children = "Read more" }: { to: string; children?: ReactNode }) {
+/** Link at the end of a landing teaser. It names where it goes, and the arrow comes from CSS. */
+export function ReadMore({ to, children }: { to: string; children: ReactNode }) {
   return <Link to={to} className="link-arrow read-more">{children}</Link>;
 }

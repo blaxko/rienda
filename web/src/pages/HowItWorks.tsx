@@ -29,7 +29,7 @@ export function HowItWorks() {
           ))}
         </ol>
       </section>
-      <PageCta to="/try" label="Try it" more={{ to: "/developers", label: "For developers" }} />
+      <PageCta to="/try" label="Try the demo" more={{ to: "/developers", label: "For developers" }} />
     </>
   );
 }
