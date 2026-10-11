@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle, Lock01, XCircle } from "@untitledui/icons";
+import { ReinRail } from "./ReinRail";
 import { useTween } from "../lib/motion";
 import { DEMO_LIMITS, DEMO_MERCHANTS, decide, initialDemo, pay, type Outcome } from "../lib/simulate";
 
 const AMOUNTS = [2, 4, 12, 60, 500];
 const usd = (n: number) => `$${n.toFixed(2)}`;
 
-const PILL: Record<Outcome, string> = { Paid: "pill", Held: "pill amber", Blocked: "pill red", Reverted: "pill red" };
+const PILL: Record<Outcome, string> = { Paid: "pill paid", Held: "pill amber", Blocked: "pill red", Reverted: "pill red" };
 
 /** A local model of the contract's rules (see lib/simulate.ts). No wallet, no transactions. */
 export function Demo() {
@@ -70,19 +71,19 @@ export function Demo() {
           <p className="muted" style={{ marginTop: 6 }}>Simulated with the same rules as the contract. Nothing is sent to a chain.</p>
         </div>
 
-        <div className={`lane ${s.frozen ? "frozen" : ""} ${last ? last.outcome : ""}`} aria-hidden="true">
+        <div className="lane2" aria-hidden="true">
           <span className="node">Agent</span>
-          <span className="rail">
-            {last && <i className={`dot ${last.outcome}`} key={last.id} />}
-            <span className="gate" key={`g${last?.id ?? 0}`}>{s.frozen ? <Lock01 width={14} height={14} /> : null}</span>
-          </span>
+          <ReinRail last={last} frozen={s.frozen} />
           <span className="node">{last && last.outcome === "Paid" ? last.to : "Merchant"}</span>
         </div>
 
         {s.frozen && (
           <div className="banner-frozen" role="alert">
-            <strong>Frozen</strong>
-            Rienda froze this agent after {DEMO_LIMITS.maxStrikes} blocked attempts. The balance did not move. Any further call reverts.
+            <Lock01 width={22} height={22} aria-hidden />
+            <div>
+              <strong>Reined in</strong>
+              Your agent is frozen after {DEMO_LIMITS.maxStrikes} strikes. The balance did not move. Any further call reverts.
+            </div>
           </div>
         )}
 
@@ -117,10 +118,14 @@ export function Demo() {
           <ul className="log">
             {s.events.map((e) => (
               <li key={e.id}>
-                <span className={PILL[e.outcome]} style={{ width: "max-content" }}>
-                  {e.outcome === "Paid" ? <CheckCircle width={14} height={14} aria-hidden /> : e.outcome === "Held" ? <AlertTriangle width={14} height={14} aria-hidden /> : <XCircle width={14} height={14} aria-hidden />}
-                  {e.outcome === "Reverted" ? "Reverted" : e.outcome}
-                </span>
+                {e.outcome === "Reverted" && e.to === "Agent" ? (
+                  <span className="pill ink" style={{ width: "max-content" }}><Lock01 width={14} height={14} aria-hidden />Frozen</span>
+                ) : (
+                  <span className={PILL[e.outcome]} style={{ width: "max-content" }}>
+                    {e.outcome === "Paid" ? <CheckCircle width={14} height={14} aria-hidden /> : e.outcome === "Held" ? <AlertTriangle width={14} height={14} aria-hidden /> : <XCircle width={14} height={14} aria-hidden />}
+                    {e.outcome}
+                  </span>
+                )}
                 <span>
                   <span style={{ color: "var(--text)" }}>{e.to}</span>
                   <div className="sub">{e.note}</div>

@@ -22,7 +22,7 @@
     "build:sdk": "npm run build -w packages/sdk",
     "build:web": "npm run build -w web",
     "build": "npm run build:sdk && npm run build:web",
-    "start": "serve -s web/dist -l tcp://0.0.0.0:${PORT:-3000}",
+    "start": "serve web/dist -l tcp://0.0.0.0:${PORT:-3000}",
     "agent": "tsx agent/src/run.ts"
   },
   "dependencies": {

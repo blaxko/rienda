@@ -4,7 +4,8 @@ import { Link } from "../router";
 import { chain, rienda } from "../config";
 import { useDecimals, useWallet } from "../hooks";
 import { fmtUsdc, shortAddr } from "../lib/format";
-import { ConnectButton } from "../components/ConnectModal";
+import { ConnectButton, TroubleLink } from "../components/ConnectModal";
+import { StatusPill } from "../components/StatusPill";
 
 export function Reins() {
   const w = useWallet();
@@ -33,6 +34,7 @@ export function Reins() {
         <h2>Connect your wallet</h2>
         <p>Your reins are tied to the wallet that created them. Connect it to see them. Rienda never moves funds without a transaction you sign.</p>
         <ConnectButton />
+        <TroubleLink />
       </div>
     );
   } else if (q.error) {
@@ -71,7 +73,7 @@ export function Reins() {
           <Link key={id.toString()} to={`/rein/${id}`} className="card link-card">
             <div className="row">
               <strong>Rein #{id.toString()}</strong>
-              <span className={`status status-${rein.status}`}>{rein.status}</span>
+              <StatusPill status={rein.status} />
             </div>
             <div className="big">${fmtUsdc(rein.balance, decimals)}</div>
             <div className="muted">Agent <span className="mono">{shortAddr(rein.agent)}</span> · Strikes {rein.strikes} of {rein.maxStrikes}</div>

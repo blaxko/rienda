@@ -1,6 +1,9 @@
 import { createPublicClient, http } from "viem";
 import { createConfig } from "wagmi";
-import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
+import { coinbaseWallet, injected } from "wagmi/connectors";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
+import { createAppKit } from "@reown/appkit/react";
+import { brandAppKit } from "./lib/appkitBrand";
 import { LOGS_RPC, PUBLIC_LOGS_RANGE, addresses, chainFor, createRienda, explorerUrl, transportFor, type Network } from "@rienda/sdk";
 
 const env = import.meta.env;
@@ -21,26 +24,57 @@ export const WALLETCONNECT_PROJECT_ID: string | undefined = env.VITE_WALLETCONNE
 
 const appUrl = typeof window !== "undefined" ? window.location.origin : "https://rienda.app";
 
-export const wagmiConfig = createConfig({
-  chains: [chain],
-  // EIP-6963: every installed wallet (MetaMask, Rabby, …) announces itself and becomes its own connector.
-  // The generic injected() connector stays only as a fallback for wallets that don't announce.
-  multiInjectedProviderDiscovery: true,
-  connectors: [
-    injected(),
-    coinbaseWallet({ appName: "Rienda" }),
-    ...(WALLETCONNECT_PROJECT_ID
-      ? [
-          walletConnect({
-            projectId: WALLETCONNECT_PROJECT_ID,
-            showQrModal: false, // we draw our own QR in the connect modal
-            metadata: { name: "Rienda", description: "Spending limits for AI agents on Monad", url: appUrl, icons: [] },
-          }),
-        ]
-      : []),
-  ],
-  transports: { [chain.id]: transport },
-});
+/** Wallets listed first in the connect modal (WalletConnect Explorer ids, checked against the Explorer API). */
+const FEATURED_WALLETS = [
+  "c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96", // MetaMask
+  "4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0", // Trust Wallet
+  "fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa", // Coinbase Wallet
+  "1ae92b26df02f0abca6304df07debccd18262fdf5fe82daa81593582dac9a369", // Rainbow
+  "971e689d0a5be527bac79629b4ee9b925e82208e5168b733496a09c0faed0709", // OKX Wallet
+  "a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393", // Phantom
+  "18388be9ac2d02726dbac9777c96efaac06d744b2f6d580fccdd4127a6d01fd1", // Rabby
+];
+
+/** True when the Reown AppKit modal is in use (a WalletConnect project id is set). */
+export const USE_APPKIT = !!WALLETCONNECT_PROJECT_ID;
+
+function buildWagmiConfig() {
+  if (WALLETCONNECT_PROJECT_ID) {
+    // Reown AppKit on top of wagmi: every wallet the browser announces (EIP-6963), WalletConnect with its own
+    // wallet list and logos, deep links on phones. Themed to Rienda; the modal gets our mark (see lib/appkitBrand).
+    const adapter = new WagmiAdapter({ projectId: WALLETCONNECT_PROJECT_ID, networks: [chain as never], transports: { [chain.id]: transport } });
+    const modal = createAppKit({
+      adapters: [adapter],
+      projectId: WALLETCONNECT_PROJECT_ID,
+      networks: [chain as never],
+      defaultNetwork: chain as never,
+      metadata: { name: "Rienda", description: "Spending limits for AI agents on Monad", url: appUrl, icons: [`${appUrl}/apple-touch-icon.png`] },
+      themeMode: "light",
+      themeVariables: {
+        "--w3m-font-family": '"Geist", system-ui, -apple-system, "Segoe UI", sans-serif',
+        "--w3m-accent": "#8B5A2B",
+        "--w3m-color-mix": "#FBF8F3",
+        "--w3m-color-mix-strength": 28,
+        "--w3m-border-radius-master": "3px",
+        "--w3m-qr-color": "#14110F",
+        "--w3m-z-index": 300,
+      },
+      featuredWalletIds: FEATURED_WALLETS,
+      features: { analytics: false, email: false, socials: false, swaps: false, onramp: false, reownBranding: false } as never,
+    });
+    brandAppKit(modal);
+    return adapter.wagmiConfig;
+  }
+  // No project id: injected wallets (EIP-6963) and Coinbase only. WalletConnect is hidden, never a crash.
+  return createConfig({
+    chains: [chain],
+    multiInjectedProviderDiscovery: true,
+    connectors: [injected(), coinbaseWallet({ appName: "Rienda" })],
+    transports: { [chain.id]: transport },
+  });
+}
+
+export const wagmiConfig = buildWagmiConfig();
 
 /** Read-only client, independent of the wallet (works before connecting and on the wrong network). */
 export const publicClient = createPublicClient({ chain, transport });

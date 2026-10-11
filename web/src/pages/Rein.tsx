@@ -10,7 +10,8 @@ import { fmtDateTime, fmtUsdc, parseUsdc, shortAddr } from "../lib/format";
 import { TxStatus } from "../components/TxStatus";
 import { Feed } from "../components/Feed";
 import { HeldPanel } from "../components/HeldPanel";
-import { AlertTriangle, SlashCircle01 } from "@untitledui/icons";
+import { AlertTriangle, Lock01, SlashCircle01 } from "@untitledui/icons";
+import { StatusPill } from "../components/StatusPill";
 import { Link } from "../router";
 import { cleanAddress, parseAddress } from "../lib/address";
 
@@ -140,17 +141,20 @@ export function ReinPage({ reinId }: { reinId: bigint }) {
       <Link to="/app" className="back">My reins</Link>
       <div className="page-head">
         <h1>Rein #{reinId.toString()}</h1>
-        <span className={`status status-${rein.status}`}>{rein.status}</span>
+        <StatusPill status={rein.status} />
       </div>
 
       {rein.status === "Frozen" && (
         <div className="frozen-banner" role="alert">
-          <strong>Frozen</strong>
-          <small>
-            {autoFrozen
-              ? `Rienda froze this agent after ${rein.maxStrikes} blocked attempts. Your funds didn't move.`
-              : "You froze this agent. It can't pay until you unfreeze it."}
-          </small>
+          <Lock01 width={24} height={24} aria-hidden />
+          <div>
+            <strong>{autoFrozen ? `Reined in — your agent is frozen after ${rein.maxStrikes} strikes` : "Reined in — you froze your agent"}</strong>
+            <small>
+              {autoFrozen
+                ? `Rienda froze it after ${rein.maxStrikes} blocked attempts. Your funds didn't move.`
+                : "It can't pay until you unfreeze it."}
+            </small>
+          </div>
         </div>
       )}
       {rein.status === "Closed" && <div className="banner banner-grey"><SlashCircle01 width={18} height={18} aria-hidden />This rein is closed. The balance was withdrawn and the agent can no longer pay.</div>}

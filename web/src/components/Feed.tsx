@@ -1,3 +1,4 @@
+import { Lock01 } from "@untitledui/icons";
 import { txUrl } from "../config";
 import { fmtTime, fmtUsdc, shortAddr } from "../lib/format";
 import type { ChainEvent, ReinView } from "../lib/events";
@@ -53,7 +54,7 @@ function Row({ e, view, times, decimals }: { e: ChainEvent; view: ReinView; time
   return (
     <li className={e.name}>
       <span className="t">{fmtTime(times.get(e.blockNumber))}</span>
-      <span className="o">{title}</span>
+      <span className="o">{e.name === "Frozen" && <Lock01 width={13} height={13} aria-hidden />}{title}</span>
       <span className="detail">
         {amount !== undefined && <strong>${fmtUsdc(amount, decimals)}</strong>}
         {to && <> to <Who view={view} addr={to} /></>}

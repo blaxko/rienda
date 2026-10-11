@@ -8,9 +8,9 @@ const ease = (t: number) => 1 - Math.pow(1 - t, 3);
  * Adds `.in` to every `.reveal` (and to each child of `.stagger`, with an --i index) as it scrolls into view.
  * With reduced motion everything is revealed at once. Re-run when the page's reveal elements change.
  */
-export function useRevealOnScroll() {
+export function useRevealOnScroll(routeKey?: string) {
   useEffect(() => {
-    const els = [...document.querySelectorAll<HTMLElement>(".reveal, .stagger > *")];
+    const els = [...document.querySelectorAll<HTMLElement>(".reveal, .stagger > *, .draw, .reveal-steps")];
     document.querySelectorAll<HTMLElement>(".stagger").forEach((g) => [...g.children].forEach((c, i) => (c as HTMLElement).style.setProperty("--i", String(i))));
     if (reducedMotion() || typeof IntersectionObserver === "undefined") {
       els.forEach((e) => e.classList.add("in"));
@@ -22,7 +22,7 @@ export function useRevealOnScroll() {
     );
     els.forEach((e) => io.observe(e));
     return () => io.disconnect();
-  }, []);
+  }, [routeKey]);
 }
 
 /** Tweens a number toward `value` (ms, eased). With reduced motion it jumps straight there. */
