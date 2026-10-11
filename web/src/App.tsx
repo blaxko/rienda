@@ -33,7 +33,7 @@ function AppMeta({ path }: { path: string }) {
 export function App() {
   const raw = usePath();
   const path = raw.length > 1 ? raw.replace(/\/+$/, "") : raw || "/";
-  useEffect(() => window.scrollTo(0, 0), [path]);
+  useEffect(() => { window.scrollTo(0, 0); }, [path]);
 
   const Site = SITE[path];
   if (Site) {

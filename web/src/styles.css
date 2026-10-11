@@ -642,7 +642,7 @@ input[aria-invalid="true"]:focus-visible { outline-color: var(--red); }
 
 /* ═════════ brand layer: paper, ink, saddle ═════════ */
 /* serif headlines (Instrument Serif has one regular weight; it reads smaller than Geist, so sizes go up) */
-.hero h1 { font-size: 92px; line-height: .98; letter-spacing: -.022em; font-weight: 400; }
+.hero h1 { font-size: 92px; line-height: .98; letter-spacing: -.012em; font-weight: 400; }
 .section h2, .main h1 { font-weight: 400; letter-spacing: -.018em; }
 .section h2 { font-size: 58px; line-height: 1.02; }
 .panel.soft h2 { font-size: 52px; }
@@ -699,13 +699,14 @@ input:focus-visible, select:focus-visible { border-color: var(--accent); }
   box-shadow: 0 0 0 1px #D6CBBD, inset 0 1px 0 rgba(255, 252, 247, .95), inset 0 -7px 10px -7px rgba(94, 59, 27, .2), 0 6px 14px -6px rgba(94, 59, 27, .22);
 }
 .step2:focus-visible .disc { outline: 2px solid var(--accent); outline-offset: 3px; }
-.num2 { font-family: var(--serif); font-size: 40px; line-height: 1; color: var(--accent); transform: translateY(var(--num-nudge, 2px)); font-feature-settings: "lnum"; }
+.num2 { font-family: var(--serif); font-size: 40px; line-height: 1; color: var(--accent); transform: translateY(var(--num-nudge, 1px)); font-feature-settings: "lnum"; }
 .step2-text { margin-top: 28px; text-align: left; }
 .step2-text h3 { font-size: 30px; line-height: 1.1; margin-bottom: 10px; }
 .step2-text p { font-size: 18px; line-height: 1.55; color: var(--body); max-width: 34ch; }
 /* the line between discs: from this disc's centre to the next disc's centre, behind both */
 .step2 .link { position: absolute; z-index: 0; color: var(--accent); opacity: .4; pointer-events: none; overflow: visible; }
-.step2 .link-h { display: block; left: 36px; top: 24px; width: calc(100% + var(--gap)); height: 24px; }
+.step2 { --lh: 18px; --base: .5472; }
+.step2 .link-h { display: block; left: 36px; top: calc(36px - var(--base) * var(--lh)); width: calc(100% + var(--gap)); height: var(--lh); }
 .step2 .link-v { display: none; }
 
 @media (max-width: 1000px) {
@@ -713,19 +714,21 @@ input:focus-visible, select:focus-visible { border-color: var(--accent); }
   .step2 { display: grid; grid-template-columns: 72px 1fr; column-gap: 24px; align-items: start; }
   .step2-text { margin-top: 4px; }
   .step2 .link-h { display: none; }
-  .step2 .link-v { display: block; left: 24px; top: 36px; width: 24px; height: calc(100% + var(--gap)); }
+  .step2 .link-v { display: block; left: calc(36px - var(--base) * var(--lh)); top: 36px; width: var(--lh); height: calc(100% + var(--gap)); }
 }
 
 /* draw + appear when scrolled into view (only when motion is on). Animations only describe the "from" state, so
    once they finish the normal styles (including hover) apply. */
-.motion .reveal-steps .link path { stroke-dasharray: 1; }
-.motion .reveal-steps:not(.in) .link path { stroke-dashoffset: 1; }
+.motion .reveal-steps:not(.in) .link-h { clip-path: inset(-6px 100% -6px -6px); }
+.motion .reveal-steps:not(.in) .link-v { clip-path: inset(-6px -6px 100% -6px); }
 .motion .reveal-steps:not(.in) .disc, .motion .reveal-steps:not(.in) .num2, .motion .reveal-steps:not(.in) .step2-text { opacity: 0; }
-.motion .reveal-steps.in .link path { animation: draw .45s cubic-bezier(.45, 0, .25, 1) calc(var(--i) * 450ms) backwards; }
+.motion .reveal-steps.in .link-h { animation: wipe-from-x .45s cubic-bezier(.45, 0, .25, 1) calc(var(--i) * 450ms) backwards; }
+.motion .reveal-steps.in .link-v { animation: wipe-from-y .45s cubic-bezier(.45, 0, .25, 1) calc(var(--i) * 450ms) backwards; }
 .motion .reveal-steps.in .disc { animation: disc-in .42s var(--ease) calc(var(--i) * 450ms) backwards; }
 .motion .reveal-steps.in .num2 { animation: num-in .35s ease calc(var(--i) * 450ms + 260ms) backwards; }
 .motion .reveal-steps.in .step2-text { animation: text-in .5s var(--ease) calc(var(--i) * 450ms + 200ms) backwards; }
-@keyframes draw { from { stroke-dashoffset: 1; } }
+@keyframes wipe-from-x { from { clip-path: inset(-6px 100% -6px -6px); } }
+@keyframes wipe-from-y { from { clip-path: inset(-6px -6px 100% -6px); } }
 @keyframes disc-in { from { opacity: 0; transform: scale(.9); } }
 @keyframes num-in { from { opacity: 0; } }
 @keyframes text-in { from { opacity: 0; transform: translateY(10px); } }
@@ -743,17 +746,17 @@ input:focus-visible, select:focus-visible { border-color: var(--accent); }
 
 .hero { background: #F5EFE6; min-height: 760px; border: 1px solid var(--line); }
 .hero-line { position: absolute; z-index: 0; left: -2%; right: -2%; bottom: 10%; width: 104%; height: 34%; color: var(--accent); opacity: .5; pointer-events: none; overflow: visible; }
-.hero-line path { stroke-dasharray: 1; stroke-dashoffset: 0; }
-.motion .hero-line path { stroke-dashoffset: 1; animation: draw-full 2.4s .5s cubic-bezier(.45, 0, .2, 1) forwards; }
-@keyframes draw-full { to { stroke-dashoffset: 0; } }
+.motion .hero-line { clip-path: inset(-6px 100% -6px -6px); animation: wipe-x 2.4s .5s cubic-bezier(.45, 0, .2, 1) forwards; }
+@keyframes wipe-x { to { clip-path: inset(-6px -6px -6px -6px); } }
+@keyframes wipe-y { to { clip-path: inset(-6px -6px -6px -6px); } }
 .hero .lede, .page-hero .lede { color: var(--body); }
 .hero-float .float-card { background: rgba(251, 248, 243, .7); }
 
 .rein-divider { width: 100%; height: 40px; color: var(--accent); opacity: .5; }
 .rein-divider .divider-line { display: block; width: 100%; height: 100%; overflow: visible; }
-.draw path { stroke-dasharray: 1; stroke-dashoffset: 0; }
-.motion .draw:not(.in) path { stroke-dashoffset: 1; }
-.motion .draw.in path { animation: draw-full 1.6s cubic-bezier(.45, 0, .2, 1) backwards; }
+.motion .draw:not(.in) { clip-path: inset(-6px 100% -6px -6px); }
+.motion .draw.in { animation: wipe-in-x 1.6s cubic-bezier(.45, 0, .2, 1) backwards; }
+@keyframes wipe-in-x { from { clip-path: inset(-6px 100% -6px -6px); } }
 .section-rule { margin-top: 128px; }
 .section.tight { padding-top: 56px; }
 .read-more { margin-top: 28px; }
@@ -819,7 +822,7 @@ input:focus-visible, select:focus-visible { border-color: var(--accent); }
 @media (max-width: 1100px) {
   .hero h1 { font-size: 72px; }
   .page-hero h1 { font-size: 68px; }
-  .page-grid, .split-block { grid-template-columns: 1fr; gap: 40px; }
+  .page-grid, .split-block { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .try-teaser { grid-template-columns: 1fr; padding: 32px 24px; gap: 32px; }
 }
 @media (max-width: 1000px) {
@@ -848,7 +851,7 @@ input:focus-visible, select:focus-visible { border-color: var(--accent); }
   .nav-end .pill.net { height: 28px; font-size: 12px; padding: 0 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-line path, .draw path { stroke-dashoffset: 0 !important; animation: none !important; }
+  .hero-line, .draw, .step2 .link { clip-path: none !important; animation: none !important; }
   .sheet { animation: none; }
 }
 
@@ -878,3 +881,8 @@ input:focus-visible, select:focus-visible { border-color: var(--accent); }
 .trouble { display: block; margin-top: 16px; font-size: 13px; color: var(--muted); text-align: center; min-height: 44px; line-height: 44px; }
 .wallet-row img { width: 32px; height: 32px; }
 .wallet-noicon { display: none; }
+
+.page-grid > *, .split-block > *, .duo > * { min-width: 0; }
+.code-inline { max-width: 100%; }
+
+.lane2 .rail::before { display: none; }

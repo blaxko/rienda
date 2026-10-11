@@ -18,8 +18,8 @@ export function Steps() {
         <li className="step2" key={s.title} tabIndex={0} style={{ ["--i" as string]: i }}>
           {i < STEPS.length - 1 && (
             <>
-              <ReinLine className="link link-h" draw={false} />
-              <ReinLine className="link link-v" vertical draw={false} />
+              <ReinLine className="link link-h" draw={false} level />
+              <ReinLine className="link link-v" vertical draw={false} level />
             </>
           )}
           <span className="disc" aria-hidden="true"><span className="num2">{i + 1}</span></span>

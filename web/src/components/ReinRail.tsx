@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Lock01 } from "@untitledui/icons";
 import { REIN_H, REIN_W } from "../lib/reinLine";
 import { reducedMotion } from "../lib/motion";
@@ -18,6 +18,7 @@ export function ReinRail({ last, frozen }: { last: DemoEvent | undefined; frozen
   const dot = useRef<HTMLElement>(null);
   const gateEl = useRef<HTMLSpanElement>(null);
   const geo = useRef<{ path: SVGPathElement; len: number; tGate: number } | null>(null);
+  const [gatePos, setGatePos] = useState<{ left: string; top: string }>({ left: "50%", top: "50%" });
 
   useLayoutEffect(() => {
     const path = box.current!.querySelector("path")!;
@@ -27,8 +28,7 @@ export function ReinRail({ last, frozen }: { last: DemoEvent | undefined; frozen
     for (let i = 20; i <= 980; i++) { const t = i / 1000, d = Math.abs(path.getPointAtLength(len * t).x - REIN_W / 2); if (d < bd) { bd = d; best = t; } }
     geo.current = { path, len, tGate: best };
     const p = path.getPointAtLength(len * best);
-    gateEl.current!.style.left = `${(p.x / REIN_W) * 100}%`;
-    gateEl.current!.style.top = `${(p.y / REIN_H) * 100}%`;
+    setGatePos({ left: `${(p.x / REIN_W) * 100}%`, top: `${(p.y / REIN_H) * 100}%` });
   }, []);
 
   const place = (t: number, opacity = 1) => {
@@ -69,7 +69,7 @@ export function ReinRail({ last, frozen }: { last: DemoEvent | undefined; frozen
   return (
     <span className={`rail ${last ? last.outcome : ""} ${frozen ? "frozen" : ""}`} ref={box} aria-hidden="true">
       <ReinLine className="rail-line" draw={false} />
-      <span className="gate2" ref={gateEl} key={`g${last?.id ?? 0}`}>{frozen ? <Lock01 width={13} height={13} /> : null}</span>
+      <span className="gate2" ref={gateEl} key={`g${last?.id ?? 0}`} style={gatePos}>{frozen ? <Lock01 width={13} height={13} /> : null}</span>
       <i className="dot2" ref={dot as React.RefObject<HTMLElement>} />
     </span>
   );
