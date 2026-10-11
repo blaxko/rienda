@@ -3,6 +3,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Header, NetworkGuard } from "./components/Header";
 import { Shapes } from "./components/Shapes";
 import { SiteLayout } from "./components/SiteLayout";
+import { WalletDomainNotice } from "./components/WalletDomainNotice";
 import { Link, usePath } from "./router";
 import { usePageMeta } from "./lib/meta";
 import { About } from "./pages/About";
@@ -40,6 +41,7 @@ export function App() {
     return (
       <SiteLayout>
         <ErrorBoundary key={path}><Site /></ErrorBoundary>
+        <WalletDomainNotice />
       </SiteLayout>
     );
   }
@@ -63,6 +65,7 @@ export function App() {
       <div className="app-bg"><Shapes /></div>
       <Header />
       <AppMeta path={path} />
+      <WalletDomainNotice />
       <NetworkGuard />
       <main className="main">
         <ErrorBoundary key={path}>{page}</ErrorBoundary>
