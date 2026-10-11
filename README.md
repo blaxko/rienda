@@ -9,7 +9,7 @@
 - **Repo:** https://github.com/blaxko/rienda · **License:** MIT
 - **Demo video:** _TODO: link added before submission_
 - **Network:** Monad **Testnet** (chain 10143), testnet-only for the submission. Contract verified; all 4 outcomes shown below with real transactions. See [Network](#network-monad-testnet-chain-10143).
-- **Demo agent:** scripted for reproducibility; **every transaction is real**, and no AI model is involved.
+- **Demo agent:** scripted to reproduce a prompt-injection attack repeatably; Rienda is agent-agnostic (any LLM or script calling `pay()` gets the same rules); **every transaction is real**, and no AI model drives the demo.
 
 ---
 
@@ -61,7 +61,7 @@ Solidity 0.8.28 + Foundry · OpenZeppelin Contracts 5.6.1 (`SafeERC20`, `Reentra
 ## How Rienda uses Monad
 
 - **Checking every payment onchain, and logging every attack, only makes sense when fees are near zero.** A blocked attempt is a real transaction that costs the agent a fraction of a cent, so the owner gets a permanent audit trail instead of a silent revert.
-- **Sub-second finality** means an agent never waits long for an answer, and the dashboard shows an attack within about a second of the block (feed polls every 1 s; the testnet run showed rows within ~3 s end to end).
+- **Measured on testnet** (`scripts/timing.ts`, 10 sequential `pay()` calls): **median ~1.0 s, p95 ~1.2 s** from send to receipt (see [Latency](#latency-monad-testnet)). Fast confirmation means an agent never waits long for an answer, and the dashboard shows an attack within about a second of the block (feed polls every 1 s; the testnet run showed rows within ~3 s end to end).
 - **Independent per-rein state** (no shared hot slot between reins) is designed so many agents can pay at once without contending on Monad's parallel execution. (A design property: we have not load-tested it.)
 - **Plain, undelegated accounts.** Agent and owner stay normal wallets (no EIP-7702), so Monad's reserve-balance rule for delegated accounts never applies to small agent balances.
 - **Monad-specific engineering we had to do:**
@@ -88,6 +88,17 @@ Solidity 0.8.28 + Foundry · OpenZeppelin Contracts 5.6.1 (`SafeERC20`, `Reentra
 | **Held** | $12 GPU minutes is over the $5 per-payment cap → request #2 waits for the owner | 69530089 | [`0x6496fb78…26c7`](https://testnet.monadvision.com/tx/0x6496fb78c2611a18a504a5227c3bf66e9e0b166bf8d3cdbaba4587967c5026c7) |
 | **Blocked** | injected instruction: $500 to an unlisted address → `NOT_ALLOWED`, strike 1 | 69530094 | [`0xddb28113…3e5f`](https://testnet.monadvision.com/tx/0xddb2811316cd762529510b84240e45058af55b474719ee96858bd18870d33e5f) |
 | **Blocked + Frozen** | third attempt → strike 3 → rein frozen automatically in the same transaction | 69530102 | [`0x871be250…c4ab8`](https://testnet.monadvision.com/tx/0x871be25068fb54b54d7df24ef25e47a582567df90f4ec80308d017191ffc4ab8) |
+
+**Demo rein #2** (the live one on the dashboard; same scripted injection run, created from the `/new` page):
+
+| Outcome | What happened | Block | Transaction |
+|---|---|---|---|
+| **Created** | rein #2 created with $5 per payment, $20/day, $50 hold ceiling, 3 strikes, 3 merchants, $20 deposit | 70070636 | [`0x1c1ac8c0…136c`](https://testnet.monadvision.com/tx/0x1c1ac8c0f12b8135661cb5b45fed48477f284854a7575be64e95532c832d136c) |
+| **Paid** | News API $2 | 70071033 | [`0x1ac25f93…1fa2`](https://testnet.monadvision.com/tx/0x1ac25f937fa728e5b0f0f690db40c7f95950ed7a76d031cf96f90a01f53f1fa2) |
+| **Held** | $12 GPU minutes, request #7 | 70071040 | [`0x654c9a31…0d00`](https://testnet.monadvision.com/tx/0x654c9a31be316e4a826393297170bbdb42daeb809c4508671786975131420d00) |
+| **Blocked** | $500 to an unlisted address, `NOT_ALLOWED`, strike 1 | 70071043 | [`0xa6ac7417…362d`](https://testnet.monadvision.com/tx/0xa6ac7417611bc16e4d8c139e07fac3cd51c0475bf4059f7555852bc28cc2362d) |
+| **Blocked + Frozen** | strike 3, frozen in the same transaction | 70071050 | [`0xe5e543df…64d3`](https://testnet.monadvision.com/tx/0xe5e543dfb0281c87b99fed063ce863ac2bd170edf9400362313880bcbfa264d3) |
+| **Approved** | owner approves held request #7 (a later run on the same rein added more rows) | 70071578 | [`0x2bef26da…e741`](https://testnet.monadvision.com/tx/0x2bef26dab2c863fa9472f428894f857a7297b3182fd73bf16e6be45e7185e741) |
 
 After the freeze the agent's next `pay` is rejected (`ReinFrozen`); that call is stopped at simulation, so it costs no gas and leaves no transaction.
 
@@ -145,7 +156,7 @@ npm run build -w packages/sdk             # the agent and dashboard import the b
 cd contracts
 forge build
 forge test                  # 88 tests: 79 unit + 7 fuzz + 1 invariant + 1 gas
-forge coverage --report summary --ir-minimum   # Rienda.sol ~99% lines
+forge coverage --report summary --ir-minimum   # Rienda.sol 99.32% lines (146/147), 98.45% across all files
 ```
 
 ### 3. Run the agent scenario on testnet
@@ -167,6 +178,8 @@ npm run agent -- --scenario injection --network testnet
 
 Expected summary: **2 Paid, 1 Held, 3 Blocked, Frozen, then 1 revert**, with an explorer link per transaction. To run again, reset the rein first: `npx tsx scripts/reset-rein.ts` denies pending requests, unfreezes it, and tops the balance back up to $20 from the owner wallet if it fell below (each run spends $6). If the owner is short of USDC it says so and points to https://faucet.circle.com (select Monad Testnet). Add `--dry-run` to preview.
 
+> **The demo agent is scripted to reproduce a prompt-injection attack repeatably.** Rienda itself is agent-agnostic: any LLM or script that calls `pay()` gets the same rules.
+>
 > **The demo agent is scripted for reproducibility.** It replays a fixed list of tool calls through the same SDK; **every transaction is real**, and no AI model is involved. The injection scenario reads the poisoned page and then makes the attacker payment a fooled agent would make, so you can reproduce exactly what Rienda does when that happens.
 
 The CLI also accepts `--network mainnet`, but it is refused unless you pass `--confirm-mainnet`, and no mainnet deployment exists yet.

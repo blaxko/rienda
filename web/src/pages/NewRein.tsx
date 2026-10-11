@@ -210,6 +210,7 @@ export function NewRein() {
         <p className="card-note">
           Your USDC balance: {balance.data !== undefined ? `$${fmtUsdc(balance.data, decimals)}` : w.isConnected ? "…" : "connect a wallet"}
         </p>
+        <p className="card-note">Need testnet USDC? Get it free at <a href="https://faucet.circle.com" target="_blank" rel="noreferrer">faucet.circle.com</a> (Monad Testnet).</p>
       </div>
 
       <div className="card">
