@@ -1,16 +1,14 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, Plus, Wallet01 } from "@untitledui/icons";
 import { Link } from "../router";
 import { chain, rienda } from "../config";
 import { useDecimals, useWallet } from "../hooks";
 import { fmtUsdc, shortAddr } from "../lib/format";
-import { ConnectMenu } from "../components/Header";
+import { ConnectButton } from "../components/ConnectModal";
 
 export function Reins() {
   const w = useWallet();
   const decimals = useDecimals();
-  const [connectError, setConnectError] = useState<string | null>(null);
   const q = useQuery({
     queryKey: ["reins", chain.id, w.address],
     enabled: !!rienda && w.isConnected,
@@ -34,8 +32,7 @@ export function Reins() {
         <div className="icon"><Wallet01 width={22} height={22} aria-hidden /></div>
         <h2>Connect your wallet</h2>
         <p>Your reins are tied to the wallet that created them. Connect it to see them. Rienda never moves funds without a transaction you sign.</p>
-        <ConnectMenu onError={setConnectError} />
-        {connectError && <p className="error-text" role="alert">{connectError}</p>}
+        <ConnectButton />
       </div>
     );
   } else if (q.error) {

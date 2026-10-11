@@ -8,21 +8,29 @@
     "dev": "vite",
     "build": "tsc -p tsconfig.json && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "tsx test/wallet.check.ts"
   },
   "dependencies": {
+    "@coinbase/wallet-sdk": "4.4.0",
     "@rienda/sdk": "*",
     "@tanstack/react-query": "^5.104.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@untitledui/icons": "^0.0.23",
     "@vitejs/plugin-react": "^6.1.2",
+    "@walletconnect/ethereum-provider": "2.26.0",
     "geist": "^1.7.2",
+    "qrcode": "1.5.4",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "typescript": "~6.0.3",
     "viem": "~2.57.4",
     "vite": "~8.3.4",
     "wagmi": "~3.7.7"
+  },
+  "devDependencies": {
+    "@types/qrcode": "1.5.5",
+    "tsx": "~4.23.15"
   }
 }

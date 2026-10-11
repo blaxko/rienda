@@ -1,6 +1,6 @@
 import { createPublicClient } from "viem";
 import { createConfig } from "wagmi";
-import { injected } from "wagmi/connectors";
+import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
 import { addresses, chainFor, createRienda, explorerUrl, transportFor, type Network } from "@rienda/sdk";
 
 const env = import.meta.env;
@@ -16,12 +16,29 @@ const transport = transportFor(NETWORK, {
   RPC_URL_MAINNET: env.VITE_RPC_URL_MAINNET,
 });
 
+/** WalletConnect needs a Reown project id. Without one the option is hidden, never a crash. */
+export const WALLETCONNECT_PROJECT_ID: string | undefined = env.VITE_WALLETCONNECT_PROJECT_ID?.trim() || undefined;
+
+const appUrl = typeof window !== "undefined" ? window.location.origin : "https://rienda.app";
+
 export const wagmiConfig = createConfig({
   chains: [chain],
   // EIP-6963: every installed wallet (MetaMask, Rabby, …) announces itself and becomes its own connector.
   // The generic injected() connector stays only as a fallback for wallets that don't announce.
   multiInjectedProviderDiscovery: true,
-  connectors: [injected()],
+  connectors: [
+    injected(),
+    coinbaseWallet({ appName: "Rienda" }),
+    ...(WALLETCONNECT_PROJECT_ID
+      ? [
+          walletConnect({
+            projectId: WALLETCONNECT_PROJECT_ID,
+            showQrModal: false, // we draw our own QR in the connect modal
+            metadata: { name: "Rienda", description: "Spending limits for AI agents on Monad", url: appUrl, icons: [] },
+          }),
+        ]
+      : []),
+  ],
   transports: { [chain.id]: transport },
 });
 
