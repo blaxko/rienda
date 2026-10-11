@@ -106,22 +106,24 @@ export function Landing() {
         <main>
           <section className="hero" aria-labelledby="hero-title">
             <Shapes />
-            <div className="hero-copy">
-              <h1 id="hero-title"><Words text="Give your AI agent a spending limit it can’t talk its way past." /></h1>
-              <p className="lede reveal">Rienda is a contract on Monad. You choose who your agent can pay and how much. Small payments go through, big ones wait for you, and everything else is blocked and written onchain.</p>
-              <div className="cta-row reveal">
-                <Link to="/app" className="btn large">Open app</Link>
-                <a href="#how" className="link-arrow">How it works</a>
+            <div className="hero-inner">
+              <div className="hero-copy">
+                <h1 id="hero-title"><Words text="Give your AI agent a spending limit it can’t talk its way past." /></h1>
+                <p className="lede reveal">Rienda is a contract on Monad. You choose who your agent can pay and how much. Small payments go through, big ones wait for you, and everything else is blocked and written onchain.</p>
+                <div className="cta-row reveal">
+                  <Link to="/app" className="btn large">Open app</Link>
+                  <a href="#how" className="link-arrow">How it works</a>
+                </div>
               </div>
-            </div>
-            <div className="hero-float" aria-hidden="true">
-              <div className="float-card glass refract f1">
-                <span className="pill"><CheckCircle width={14} height={14} />Paid</span>
-                <div><div className="fc-amt">$2.00</div><div className="fc-sub">News API · within every limit</div></div>
-              </div>
-              <div className="float-card glass refract f2">
-                <span className="pill red"><XCircle width={14} height={14} />Blocked</span>
-                <div><div className="fc-amt">$500.00</div><div className="fc-sub">Unknown address · strike 1 of 3</div></div>
+              <div className="hero-float" aria-hidden="true">
+                <div className="float-card glass refract">
+                  <span className="pill"><CheckCircle width={14} height={14} />Paid</span>
+                  <div><div className="fc-amt">$2.00</div><div className="fc-sub">News API · within every limit</div></div>
+                </div>
+                <div className="float-card glass refract">
+                  <span className="pill red"><XCircle width={14} height={14} />Blocked</span>
+                  <div><div className="fc-amt">$500.00</div><div className="fc-sub">Unknown address · strike 1 of 3</div></div>
+                </div>
               </div>
             </div>
           </section>

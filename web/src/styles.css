@@ -393,10 +393,6 @@ p.error-text { color: var(--red); font-size: 14px; }
 .cta-row .link-arrow { padding: 0 14px; }
 .hero-float { position: relative; width: 330px; height: 340px; flex: none; align-self: flex-start; margin-top: 24px; }
 .float-card { position: absolute; width: 300px; border-radius: 22px; padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
-.float-card.f1 { right: 0; top: 0; }
-.float-card.f2 { left: 0; top: 160px; }
-.motion .f1 { animation: float 9s ease-in-out infinite alternate; }
-.motion .f2 { animation: float 11s ease-in-out -4s infinite alternate; }
 @keyframes float { to { transform: translateY(-10px); } }
 .fc-amt { font-size: 32px; font-weight: 300; letter-spacing: -.022em; color: var(--text); line-height: 1.1; }
 .fc-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
@@ -525,7 +521,6 @@ p.error-text { color: var(--red); font-size: 14px; }
 /* ═════════ responsive ═════════ */
 @media (max-width: 1100px) {
   .hero h1 { font-size: 60px; }
-  .hero-float { display: none; }
   .tiles { grid-template-columns: 1fr; }
   .tile { min-height: 0; gap: 28px; }
 }
@@ -618,3 +613,18 @@ p.error-text { color: var(--red); font-size: 14px; }
 .app-header .inner { max-width: 1400px; margin: 0 auto; padding: 0 var(--gutter); height: 72px; display: flex; align-items: center; gap: 32px; }
 @media (max-width: 760px) { .app-header .inner { height: auto; flex-wrap: wrap; gap: 4px 14px; padding-top: 8px; padding-bottom: 4px; } .app-header nav { order: 3; width: 100%; gap: 20px; } .header-end { gap: 8px; margin-left: auto; } }
 .stats { display: grid; margin-bottom: 48px; }
+
+/* hero: one left column of text, the two cards level beside it */
+.hero { align-items: flex-end; justify-content: stretch; }
+.hero-inner { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 48px; align-items: center; }
+.hero-copy { min-width: 0; text-align: left; }
+.hero h1 { max-width: none; }
+.hero-float { display: grid; grid-template-columns: repeat(2, 216px); gap: 14px; align-items: stretch; margin: 0; width: auto; height: auto; align-self: center; }
+.float-card { position: static; width: auto; height: 100%; justify-content: space-between; margin: 0; }
+.motion .hero-float { animation: float 9s ease-in-out infinite alternate; }
+@media (max-width: 1100px) {
+  .hero-inner { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .hero-float { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); width: 100%; max-width: 480px; align-self: stretch; }
+}
+.modal-brand { display: inline-flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 500; letter-spacing: -.02em; color: var(--text); }
+.modal-title { font-size: 24px; font-weight: 400; letter-spacing: -.01em; margin: 4px 0 8px; }

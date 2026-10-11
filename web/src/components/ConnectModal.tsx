@@ -4,6 +4,7 @@ import QRCode from "qrcode";
 import { useConnect, useConnectors } from "wagmi";
 import { AlertTriangle, Copy01, Loading02, XClose } from "@untitledui/icons";
 import { chain } from "../config";
+import { RiendaMark } from "./Logo";
 import {
   classifyConnectError,
   isMobileBrowser,
@@ -116,9 +117,10 @@ export function ConnectModal({ open, onClose }: { open: boolean; onClose: () => 
     <div className="modal-scrim" onMouseDown={(e) => e.target === e.currentTarget && close()}>
       <div className="modal glass" role="dialog" aria-modal="true" aria-labelledby="connect-title" ref={dialogRef}>
         <div className="modal-head">
-          <h2 id="connect-title">{title}</h2>
+          <span className="modal-brand"><RiendaMark size={32} />Rienda</span>
           <button className="icon-btn" onClick={close} aria-label="Close"><XClose width={20} height={20} aria-hidden /></button>
         </div>
+        <h2 id="connect-title" className="modal-title">{title}</h2>
 
         {view.name === "list" && (
           <>
